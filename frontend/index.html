@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Weather Analytics Platform — Live India Weather Monitoring</title>
+    <meta name="description" content="Real-time ingestion, ML verification, categorization, and spatial visualization of weather-related events across India.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Application Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <a href="index.html" class="brand">
+            <div class="brand-icon">🌩️</div>
+            <span class="brand-title">National Weather Analytics</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link active">Live Dashboard</a></li>
+            <li><a href="report.html" class="nav-link">Report Incident</a></li>
+            <li><a href="admin.html" class="nav-link">Admin Portal</a></li>
+        </ul>
+    </header>
+
+    <!-- Main App Container -->
+    <main class="dashboard-container">
+        
+        <!-- Key Metrics Cards -->
+        <section class="metrics-row">
+            <div class="glass-card metric-card">
+                <div class="metric-icon">📊</div>
+                <div class="metric-data">
+                    <h4>Total Reports</h4>
+                    <div class="value" id="metricTotal">0</div>
+                </div>
+            </div>
+
+            <div class="glass-card metric-card">
+                <div class="metric-icon">✅</div>
+                <div class="metric-data">
+                    <h4>Verified Reports</h4>
+                    <div class="value" id="metricVerified">0</div>
+                </div>
+            </div>
+
+            <div class="glass-card metric-card">
+                <div class="metric-icon">⚡</div>
+                <div class="metric-data">
+                    <h4>Severe Incidents</h4>
+                    <div class="value" id="metricSevere">0</div>
+                </div>
+            </div>
+
+            <div class="glass-card metric-card">
+                <div class="metric-icon">📍</div>
+                <div class="metric-data">
+                    <h4>Active Regions</h4>
+                    <div class="value" id="metricCities">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sidebar Filter Controls -->
+        <aside class="glass-card sidebar">
+            <h3>Filters & Scope</h3>
+            
+            <div class="filter-group">
+                <label for="filterEvent">Event Category</label>
+                <select id="filterEvent" class="form-control">
+                    <option value="">All Weather Events</option>
+                    <option value="Flood">Flood / Waterlogging</option>
+                    <option value="Heatwave">Heatwave</option>
+                    <option value="Thunderstorm">Thunderstorm / Lightning</option>
+                    <option value="Fog">Fog / Visibility</option>
+                    <option value="DustStorm">Dust Storm</option>
+                    <option value="StrongWind">Strong Wind / Gale</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filterCity">City / Location</label>
+                <input type="text" id="filterCity" class="form-control" placeholder="e.g. Mumbai, Delhi...">
+            </div>
+
+            <div class="filter-group">
+                <label for="filterState">State</label>
+                <input type="text" id="filterState" class="form-control" placeholder="e.g. Maharashtra...">
+            </div>
+
+            <div class="filter-group">
+                <label for="filterStatus">Status</label>
+                <select id="filterStatus" class="form-control">
+                    <option value="verified" selected>Verified Only</option>
+                    <option value="pending">Pending Review</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="">All Statuses</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filterFrom">Date From</label>
+                <input type="date" id="filterFrom" class="form-control">
+            </div>
+
+            <div class="filter-group">
+                <label for="filterTo">Date To</label>
+                <input type="date" id="filterTo" class="form-control">
+            </div>
+
+            <button id="btnApplyFilters" class="btn-primary" style="margin-top: 0.5rem; justify-content: center;">
+                Apply Filters
+            </button>
+            <button id="btnResetFilters" class="form-control" style="cursor:pointer; text-align:center;">
+                Reset Filters
+            </button>
+        </aside>
+
+        <!-- Main Workspace: Map & Charts -->
+        <section class="main-content">
+            
+            <!-- Map View Card -->
+            <div class="glass-card map-card">
+                <div id="map"></div>
+            </div>
+
+            <!-- Charts Row Grid -->
+            <div class="charts-grid">
+                <div class="glass-card chart-card">
+                    <h3>Weather Incidents by Category</h3>
+                    <div class="chart-container">
+                        <canvas id="eventTypeChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card chart-card">
+                    <h3>Regional Distribution by State</h3>
+                    <div class="chart-container">
+                        <canvas id="statePieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Dependencies -->
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Leaflet JS CDN -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Application Modules -->
+    <script src="js/supabase-config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/realtime.js"></script>
+
+    <!-- Main Controller Script -->
+    <script>
+        let currentReportsData = [];
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            initWeatherMap("map");
+            initCharts();
+
+            // Load initial dataset
+            await loadDashboardData();
+
+            // Setup Realtime Listener
+            initRealtimeSubscription(async (newReport) => {
+                console.log("Realtime notification received. Refreshing dashboard...");
+                await loadDashboardData();
+            });
+
+            // Filter Event Listeners
+            document.getElementById("btnApplyFilters").addEventListener("click", loadDashboardData);
+            document.getElementById("btnResetFilters").addEventListener("click", () => {
+                document.getElementById("filterEvent").value = "";
+                document.getElementById("filterCity").value = "";
+                document.getElementById("filterState").value = "";
+                document.getElementById("filterStatus").value = "verified";
+                document.getElementById("filterFrom").value = "";
+                document.getElementById("filterTo").value = "";
+                loadDashboardData();
+            });
+        });
+
+        async function loadDashboardData() {
+            try {
+                const filters = {
+                    event_type: document.getElementById("filterEvent").value,
+                    city: document.getElementById("filterCity").value,
+                    state: document.getElementById("filterState").value,
+                    verification_status: document.getElementById("filterStatus").value,
+                    date_from: document.getElementById("filterFrom").value,
+                    date_to: document.getElementById("filterTo").value
+                };
+
+                const reports = await fetchReports(filters);
+                currentReportsData = reports;
+
+                // Update Map Markers & Charts
+                updateMapMarkers(reports);
+                updateCharts(reports);
+
+                // Update Metrics Summary
+                document.getElementById("metricTotal").innerText = reports.length;
+                document.getElementById("metricVerified").innerText = reports.filter(r => r.verification_status === "verified").length;
+                document.getElementById("metricSevere").innerText = reports.filter(r => ["Flood", "Thunderstorm", "Heatwave"].includes(r.event_type)).length;
+                
+                const uniqueCities = new Set(reports.map(r => r.city)).size;
+                document.getElementById("metricCities").innerText = uniqueCities;
+
+            } catch (err) {
+                console.error("Failed to load dashboard data:", err);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,475 @@
+/* ==========================================================================
+   National Weather Big Data Analytics Platform - Design System
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+
+:root {
+    /* Color Palette */
+    --bg-base: #0b0f19;
+    --bg-surface: #111827;
+    --bg-card: rgba(17, 24, 39, 0.75);
+    --bg-card-hover: rgba(31, 41, 55, 0.85);
+    --bg-glass: rgba(255, 255, 255, 0.03);
+
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-glow: rgba(59, 130, 246, 0.3);
+
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+
+    --primary-blue: #3b82f6;
+    --primary-teal: #14b8a6;
+    --accent-cyan: #06b6d4;
+
+    /* Weather Event Colors */
+    --event-flood: #3b82f6;
+    --event-heatwave: #ef4444;
+    --event-thunderstorm: #a855f7;
+    --event-fog: #94a3b8;
+    --event-duststorm: #eab308;
+    --event-strongwind: #06b6d4;
+    --event-other: #64748b;
+
+    /* Status Colors */
+    --status-verified: #10b981;
+    --status-pending: #f59e0b;
+    --status-rejected: #ef4444;
+
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+
+    --shadow-main: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --glass-backdrop: blur(16px) saturate(180%);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.5;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, .brand-text {
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.02em;
+}
+
+/* Glass Card Utility */
+.glass-card {
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-main);
+}
+
+/* Layout Header / Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(11, 15, 25, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-teal));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+}
+
+.brand-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #ffffff, #93c5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    list-style: none;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--text-primary);
+    background: var(--bg-glass);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-blue), #2563eb);
+    color: white;
+    font-weight: 600;
+    padding: 0.6rem 1.25rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-success {
+    background: #059669;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* App Container Layout */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+/* Metric Cards Bar */
+.metrics-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.metric-card {
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.metric-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.metric-data h4 {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.metric-data .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Sidebar Filters */
+.sidebar {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    height: fit-content;
+}
+
+.sidebar h3 {
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.filter-group label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.6rem 0.8rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-blue);
+}
+
+/* Main Workspace (Map + Charts) */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.map-card {
+    position: relative;
+    height: 520px;
+    overflow: hidden;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-md);
+    background: #0f172a;
+}
+
+/* Custom Leaflet Dark Mode Tweaks */
+.leaflet-container {
+    background: #0f172a !important;
+}
+
+.leaflet-popup-content-wrapper {
+    background: rgba(15, 23, 42, 0.95) !important;
+    backdrop-filter: blur(12px);
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md) !important;
+    padding: 0.5rem;
+}
+
+.leaflet-popup-tip {
+    background: rgba(15, 23, 42, 0.95) !important;
+}
+
+/* Popup Details */
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.popup-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #fff;
+}
+
+.popup-badge {
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.popup-body {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.popup-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.popup-img {
+    width: 100%;
+    max-height: 140px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+}
+
+/* Event Badges */
+.badge-flood { background: rgba(59, 130, 246, 0.2); color: var(--event-flood); }
+.badge-heatwave { background: rgba(239, 68, 68, 0.2); color: var(--event-heatwave); }
+.badge-thunderstorm { background: rgba(168, 85, 247, 0.2); color: var(--event-thunderstorm); }
+.badge-fog { background: rgba(148, 163, 184, 0.2); color: var(--event-fog); }
+.badge-duststorm { background: rgba(234, 179, 8, 0.2); color: var(--event-duststorm); }
+.badge-strongwind { background: rgba(6, 182, 212, 0.2); color: var(--event-strongwind); }
+.badge-other { background: rgba(100, 116, 139, 0.2); color: var(--event-other); }
+
+.status-verified { background: rgba(16, 185, 129, 0.2); color: var(--status-verified); border: 1px solid rgba(16, 185, 129, 0.4); }
+.status-pending { background: rgba(245, 158, 11, 0.2); color: var(--status-pending); border: 1px solid rgba(245, 158, 11, 0.4); }
+.status-rejected { background: rgba(239, 68, 68, 0.2); color: var(--status-rejected); border: 1px solid rgba(239, 68, 68, 0.4); }
+
+/* Charts Layout Grid */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.chart-card {
+    padding: 1.5rem;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-card h3 {
+    margin-bottom: 1rem;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+}
+
+.chart-container {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    min-height: 240px;
+}
+
+/* Form Container for Report Page */
+.form-page-container {
+    max-width: 720px;
+    margin: 2.5rem auto;
+    padding: 2rem;
+}
+
+.form-header {
+    margin-bottom: 1.5rem;
+}
+
+.form-header h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-header p {
+    color: var(--text-secondary);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.form-grid .full-width {
+    grid-column: 1 / -1;
+}
+
+/* Admin Table */
+.admin-table-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.data-table th, .data-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    background: rgba(15, 23, 42, 0.9);
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.data-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.action-btns {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Responsiveness */
+@media (max-width: 1024px) {
+    .dashboard-container {
+        grid-template-columns: 1fr;
+    }
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
