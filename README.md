@@ -1,4 +1,4 @@
-# National Weather Big Data Analytics Platform 🌩️📍
+# National Weather Big Data Analytics Platform 
 
 A full-stack web application designed to collect, verify, categorize, and visualize real-time weather-related reports across India (rainfall, flooding, thunderstorms, heatwaves, fog, dust storms, strong winds) sourced from social media (Reddit), public Kaggle datasets, IMD government feeds, and citizen crowd-reports.
 
