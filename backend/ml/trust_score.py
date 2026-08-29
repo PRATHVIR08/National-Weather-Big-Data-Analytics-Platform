@@ -5,10 +5,11 @@ def calculate_trust_score(
     has_video: bool,
     latitude: float,
     longitude: float,
-    is_duplicate: bool
+    is_duplicate: bool,
+    ml_confidence: float = 80.0
 ) -> tuple[float, str]:
     """
-    Calculates trust score (0-100) and maps to verification status ('verified', 'pending', 'rejected').
+    Calculates dynamic trust score (0-100) and maps to verification status ('verified', 'pending', 'rejected').
     
     Rules:
     - Base score: 0
@@ -16,7 +17,8 @@ def calculate_trust_score(
     - Source is government/IMD: +40
     - Text length > 20 chars: +10
     - Has GPS coordinates: +15
-    - Duplicate flag: -50
+    - High ML Model Confidence (>= 80%): +15 bonus
+    - Duplicate penalty: -50
     """
     score = 0.0
     
@@ -37,11 +39,16 @@ def calculate_trust_score(
         
     # 4. GPS Coordinates presence (+15)
     if latitude != 0.0 or longitude != 0.0:
-        # Check within reasonable coordinate bounding box for India/Earth
         if -90 <= latitude <= 90 and -180 <= longitude <= 180:
             score += 15.0
             
-    # 5. Duplicate penalty (-50)
+    # 5. ML Model Confidence Bonus (+15)
+    if ml_confidence >= 80.0:
+        score += 15.0
+    elif ml_confidence >= 60.0:
+        score += 8.0
+        
+    # 6. Duplicate penalty (-50)
     if is_duplicate:
         score -= 50.0
         

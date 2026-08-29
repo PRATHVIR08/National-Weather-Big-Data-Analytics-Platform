@@ -36,10 +36,10 @@ A full-stack web application designed to collect, verify, categorize, and visual
 - **Live Updates:** Supabase Realtime (Websocket subscription on `postgres_changes` for `reports` table).
 - **Maps & GIS:** Leaflet.js + OpenStreetMap / CartoDB Dark Tiles.
 - **Charts & Visualizations:** Chart.js.
-- **Rule-Based ML Engines:**
-  - **Event Classifier:** Keyword-matching rule engine (`Flood`, `Heatwave`, `Thunderstorm`, `Fog`, `DustStorm`, `StrongWind`, `Other`).
-  - **Deduplication Engine:** `difflib.SequenceMatcher` text similarity algorithm (>0.85 threshold on recent reports from the same city within 24 hours).
-  - **Trust Score Evaluator (0–100):** Weighted scoring engine (Photo/Video +20, IMD/Government source +40, Detailed text > 20 chars +10, GPS location +15, Duplicate penalty -50). Auto-verifies score ≥ 70, pending for 40–69, rejects < 40.
+- **Machine Learning & NLP Pipelines:**
+  - **Scikit-Learn NLP Classifier:** `TfidfVectorizer` (N-grams 1-2) + `LogisticRegression` pipeline trained on 1,400+ labeled weather report text samples (`Flood`, `Heatwave`, `Thunderstorm`, `Fog`, `DustStorm`, `StrongWind`, `Other`) with confidence probability output.
+  - **Semantic Deduplication Engine:** TF-IDF Cosine Similarity vectorizer + `difflib.SequenceMatcher` (>0.85 threshold on recent reports from the same city within 24 hours).
+  - **Dynamic ML Trust Score Evaluator (0–100):** Weighted scoring engine (Photo/Video +20, IMD/Government source +40, Detailed text > 20 chars +10, GPS location +15, ML Confidence boost +15, Duplicate penalty -50). Auto-verifies score ≥ 70, pending for 40–69, rejects < 40.
 
 ---
 
@@ -83,14 +83,14 @@ source venv/bin/activate
 
 ### Step 3: Install Backend Dependencies
 
-Install all required Python packages:
+Install all required Python packages (including Scikit-Learn and Joblib):
 
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
 
-*(Installed packages include `fastapi`, `uvicorn`, `supabase`, `python-dotenv`, `pydantic`, `praw`, `requests`, `python-multipart`, `PyJWT`)*
+*(Installed packages include `fastapi`, `uvicorn`, `supabase`, `scikit-learn`, `joblib`, `python-dotenv`, `pydantic`, `praw`, `requests`, `python-multipart`, `PyJWT`)*
 
 ---
 
@@ -130,16 +130,24 @@ const SUPABASE_ANON_KEY = "your-anon-key";
 
 ---
 
-### Step 6: Populate Database with Seed Data
+### Step 6: Train the ML Model & Populate Seed Data
 
-Run the ingestion scripts to seed 300+ synthetic Indian weather reports, historical Kaggle rainfall metrics, and social media posts:
+1. **Train the NLP ML Model**:
+   Run the model trainer to generate the 1,400+ sample dataset and train the Scikit-Learn NLP model (`weather_nlp_model.pkl`):
 
-```bash
-# Make sure you are inside the backend directory with active venv
-python ingestion/generate_mock_data.py
-python ingestion/seed_from_kaggle_csv.py
-python ingestion/fetch_reddit.py
-```
+   ```bash
+   # From inside the backend directory
+   python ml/train_classifier.py
+   ```
+
+2. **Populate Database with Seed Data**:
+   Run the ingestion scripts to seed 300+ synthetic Indian weather reports, historical Kaggle rainfall metrics, and social media posts:
+
+   ```bash
+   python ingestion/generate_mock_data.py
+   python ingestion/seed_from_kaggle_csv.py
+   python ingestion/fetch_reddit.py
+   ```
 
 ---
 
@@ -183,12 +191,12 @@ To test all major features end-to-end:
    - Test event category filter (e.g. *Flood*, *Heatwave*, *Thunderstorm*) and location search.
    - Verify Chart.js bar and doughnut charts update dynamically.
 
-2. **Test Citizen Incident Submission (`report.html`):**
+2. **Test ML Incident Categorization & Trust Score (`report.html`):**
    - Open `http://localhost:3000/report.html`.
    - Click **📍 Capture Current GPS Location** to capture coordinates.
    - Attach a photo/video evidence file (tests upload to Supabase Storage `weather-media`).
-   - Enter incident details and submit.
-   - Confirm calculated ML Trust Score and event category display upon submission.
+   - Enter an incident description (e.g. *"Extreme waterlogging and flood on Ring Road"*).
+   - Submit and confirm that the Scikit-Learn ML Model categorizes the event and calculates the dynamic Trust Score.
 
 3. **Test Realtime Websocket Push (`index.html`):**
    - Open `index.html` in Tab 1 and submit a new report in `report.html` in Tab 2.
@@ -201,11 +209,23 @@ To test all major features end-to-end:
 
 ---
 
+## 🤖 ML Dataset & Model Management
+
+If team members want to add custom datasets or retrain the ML model:
+
+1. **Adding Custom Training Datasets**:
+   - Place training dataset CSV files into `backend/ml/data/` (columns required: `text_content`, `event_type`).
+
+2. **Retraining the Model**:
+   - Run `python ml/train_classifier.py` inside `backend/`. This trains the model and saves the updated pipeline artifact to `backend/ml/models/weather_nlp_model.pkl`.
+
+---
+
 ## 📖 Backend API Reference
 
 | Method | Endpoint | Authorization | Description |
 |---|---|---|---|
-| `POST` | `/reports` | Public | Ingest new report. Runs classification, deduplication, and trust score computation. |
+| `POST` | `/reports` | Public | Ingest new report. Runs ML NLP classification, TF-IDF deduplication, and trust score computation. |
 | `GET` | `/reports` | Public / Admin | Filter & list weather reports. Public sees `verified` reports only; Admin JWT sees all. |
 | `POST` | `/reports/upload` | Public | Upload photo/video evidence to Supabase Storage `weather-media` bucket (with local fallback). |
 | `GET` | `/admin/pending` | Admin JWT | List reports flagged as `pending` review. |
@@ -229,10 +249,17 @@ To test all major features end-to-end:
 │   │   ├── reports.py            (Report ingestion, filtering & upload endpoints)
 │   │   └── admin.py              (Protected admin verification endpoints)
 │   ├── ml/
-│   │   ├── classify.py           (Keyword rule-based event classifier)
-│   │   ├── dedupe.py             (SequenceMatcher text similarity deduplicator)
-│   │   └── trust_score.py        (Rule-based trust score & verification status engine)
+│   │   ├── data/                 (ML Training CSV datasets)
+│   │   │   └── weather_reports_dataset.csv
+│   │   ├── models/               (Trained ML Model artifacts)
+│   │   │   └── weather_nlp_model.pkl
+│   │   ├── dataset_generator.py  (1,400+ sample training dataset builder)
+│   │   ├── train_classifier.py   (Scikit-Learn TF-IDF + Logistic Regression trainer)
+│   │   ├── classify.py           (ML NLP inference engine with confidence scoring)
+│   │   ├── dedupe.py             (TF-IDF Cosine Similarity semantic deduplicator)
+│   │   └── trust_score.py        (Dynamic ML-weighted trust score evaluator)
 │   ├── ingestion/
+│   │   ├── data/                 (Raw Kaggle & seed CSV datasets)
 │   │   ├── generate_mock_data.py (300+ synthetic Indian weather report generator)
 │   │   ├── seed_from_kaggle_csv.py (Kaggle dataset parser & sample creator)
 │   │   └── fetch_reddit.py       (PRAW Reddit weather post scraper)

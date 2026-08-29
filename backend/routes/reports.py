@@ -5,7 +5,7 @@ from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Header
 from supabase_client import get_supabase_client, verify_jwt_token
 from schemas import ReportCreate, ReportResponse
-from ml.classify import classify_event
+from ml.classify import classify_event, classify_event_with_confidence
 from ml.dedupe import check_duplicate
 from ml.trust_score import calculate_trust_score
 
@@ -18,15 +18,15 @@ _in_memory_reports: List[dict] = []
 def create_report(report_data: ReportCreate):
     """
     Ingests a new weather report:
-    1. Runs event classification
-    2. Checks for duplicates against recent reports in same city
-    3. Calculates trust score and verification status
+    1. Runs ML NLP classification with confidence scoring
+    2. Checks for duplicates against recent reports in same city using TF-IDF cosine similarity
+    3. Calculates dynamic trust score and verification status
     4. Inserts into Supabase (or memory fallback)
     """
     supabase = get_supabase_client()
     
-    # 1. Classification
-    event_type = classify_event(report_data.text_content)
+    # 1. ML Classification & Confidence Probability
+    event_type, ml_confidence = classify_event_with_confidence(report_data.text_content)
     
     # 2. Deduplication check against recent reports (last 24 hours)
     cutoff_time = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
@@ -58,7 +58,8 @@ def create_report(report_data: ReportCreate):
         has_video=has_video,
         latitude=report_data.latitude,
         longitude=report_data.longitude,
-        is_duplicate=is_dup
+        is_duplicate=is_dup,
+        ml_confidence=ml_confidence
     )
     
     posted_at_iso = report_data.posted_at or datetime.now(timezone.utc).isoformat()
