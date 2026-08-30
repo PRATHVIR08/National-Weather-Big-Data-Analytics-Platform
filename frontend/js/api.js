@@ -45,6 +45,35 @@ async function fetchReports(filters = {}) {
         params.append("date_to", filters.date_to);
     }
 
+    // Spatial location query parameters (Plain Lat/Lng Spatial Indexing)
+    if (filters.lat !== undefined && filters.lat !== null) {
+        params.append("lat", filters.lat);
+    }
+
+    if (filters.lng !== undefined && filters.lng !== null) {
+        params.append("lng", filters.lng);
+    }
+
+    if (filters.radius_km !== undefined && filters.radius_km !== null) {
+        params.append("radius_km", filters.radius_km);
+    }
+
+    if (filters.min_lat !== undefined && filters.min_lat !== null) {
+        params.append("min_lat", filters.min_lat);
+    }
+
+    if (filters.max_lat !== undefined && filters.max_lat !== null) {
+        params.append("max_lat", filters.max_lat);
+    }
+
+    if (filters.min_lng !== undefined && filters.min_lng !== null) {
+        params.append("min_lng", filters.min_lng);
+    }
+
+    if (filters.max_lng !== undefined && filters.max_lng !== null) {
+        params.append("max_lng", filters.max_lng);
+    }
+
     const headers = {};
 
     const adminToken = localStorage.getItem("admin_jwt");
@@ -411,4 +440,29 @@ async function fetchAgriAdvisory(city = "Bengaluru") {
     }
 
     return await response.json();
-}
+}
+
+
+// ============================================================
+// SPATIAL LOCATION QUERIES (Plain Lat/Lng Spatial Indexing)
+// ============================================================
+
+async function fetchReportsNearby(lat, lng, radiusKm = 50, additionalFilters = {}) {
+    return await fetchReports({
+        ...additionalFilters,
+        lat,
+        lng,
+        radius_km: radiusKm
+    });
+}
+
+async function fetchReportsInBounds(minLat, maxLat, minLng, maxLng, additionalFilters = {}) {
+    return await fetchReports({
+        ...additionalFilters,
+        min_lat: minLat,
+        max_lat: maxLat,
+        min_lng: minLng,
+        max_lng: maxLng
+    });
+}
+

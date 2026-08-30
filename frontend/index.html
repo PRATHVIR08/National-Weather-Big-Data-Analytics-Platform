@@ -361,6 +361,51 @@
 
 
 
+            <!-- SPATIAL LOCATION SEARCH (Plain Lat/Lng Spatial Indexing) -->
+
+            <div class="filter-group" style="padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1);">
+
+                <label for="filterRadius" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>📍 Spatial Proximity</span>
+                    <span style="font-size:0.7rem; color:#38bdf8; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px;">Lat/Lng Indexed</span>
+                </label>
+
+                <select id="filterRadius" class="form-control">
+
+                    <option value="" selected>
+                        Disabled (All Regions)
+                    </option>
+
+                    <option value="25">
+                        Within 25 km of Center
+                    </option>
+
+                    <option value="50">
+                        Within 50 km of Center
+                    </option>
+
+                    <option value="100">
+                        Within 100 km of Center
+                    </option>
+
+                    <option value="250">
+                        Within 250 km of Center
+                    </option>
+
+                    <option value="500">
+                        Within 500 km of Center
+                    </option>
+
+                </select>
+
+                <small style="color:#94a3b8; font-size:0.725rem; margin-top:4px; display:block;">
+                    ⚡ Plain Lat/Lng spatial search (Fast Supabase B-Tree query)
+                </small>
+
+            </div>
+
+
+
             <!-- APPLY FILTERS -->
 
             <button id="btnApplyFilters" class="btn-primary" style="
@@ -1005,6 +1050,10 @@ document
                                     "filterTo"
                                 ).value = "";
 
+                                if (document.getElementById("filterRadius")) {
+                                    document.getElementById("filterRadius").value = "";
+                                }
+
 
                                 loadDashboardData();
 
@@ -1057,6 +1106,8 @@ document
                     "Loading weather reports..."
                 );
 
+                const radiusEl = document.getElementById("filterRadius");
+                const radiusVal = radiusEl ? radiusEl.value : "";
 
                 const filters = {
 
@@ -1091,6 +1142,15 @@ document
                         ).value
 
                 };
+
+                // Apply spatial proximity filter if selected
+                if (radiusVal && typeof weatherMap !== "undefined" && weatherMap) {
+                    const mapCenter = weatherMap.getCenter();
+                    filters.lat = mapCenter.lat;
+                    filters.lng = mapCenter.lng;
+                    filters.radius_km = parseFloat(radiusVal);
+                    console.log(`📍 Spatial query: ${radiusVal}km around center (${mapCenter.lat.toFixed(4)}, ${mapCenter.lng.toFixed(4)}) using plain Lat/Lng spatial index`);
+                }
 
 
                 // -----------------------------------------

@@ -146,7 +146,7 @@ def generate_mock_reports(count: int = 300):
             for b in range(0, len(reports), batch_size):
                 chunk = reports[b:b+batch_size]
                 supabase.table("reports").insert(chunk).execute()
-            print("[✓] Supabase database populated successfully!")
+            print("[OK] Supabase database populated successfully!")
             return
         except Exception as e:
             print(f"[!] Could not insert into Supabase: {e}")
