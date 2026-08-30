@@ -278,3 +278,6 @@ If team members want to add custom datasets or retrain the ML model:
         ├── charts.js             (Chart.js bar & doughnut charts)
         └── realtime.js           (Supabase Realtime subscription listener)
 ```
+Live Weather Monitoring
+
+The platform provides real-time weather monitoring across major cities in India. A predefined geographical dataset containing city names, states, latitude, and longitude is used to identify monitoring locations. These coordinates are not weather data; they simply define where weather observations should be obtained. For each location, the backend dynamically queries the Open-Meteo weather API to retrieve current meteorological conditions such as temperature, apparent temperature, humidity, wind speed, precipitation, and observation time. The collected data is returned through the FastAPI /weather/live endpoint and visualized as interactive weather markers on the Leaflet-based India map. The system automatically refreshes the weather information at regular intervals, ensuring that the displayed weather conditions remain up to date.

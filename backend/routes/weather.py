@@ -1,35 +1,31 @@
-from fastapi import APIRouter, HTTPException
-
+from fastapi import APIRouter
 from services.weather import fetch_weather_for_locations
-
 
 router = APIRouter(
     prefix="/weather",
-    tags=["Live Weather"]
+    tags=["Weather"]
 )
 
 
 @router.get("/live")
 async def get_live_weather():
     """
-    Returns current weather conditions
-    for configured Indian cities.
+    Fetch live weather for multiple major Indian cities.
     """
 
     try:
-        weather_data = await fetch_weather_for_locations()
+        weather = await fetch_weather_for_locations()
 
         return {
             "success": True,
-            "source": "Open-Meteo",
-            "count": len(weather_data),
-            "data": weather_data
+            "count": len(weather),
+            "data": weather
         }
 
     except Exception as e:
-        print(f"[ERROR] Live weather API failed: {e}")
-
-        raise HTTPException(
-            status_code=502,
-            detail=f"Unable to fetch live weather data: {str(e)}"
-        )
+        return {
+            "success": False,
+            "count": 0,
+            "data": [],
+            "error": str(e)
+        }
