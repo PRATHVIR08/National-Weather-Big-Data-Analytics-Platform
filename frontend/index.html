@@ -705,6 +705,74 @@
         </section>
 
 
+        <!-- =====================================================
+             72-HOUR SOIL & AGRI-ADVISORY SECTION
+        ====================================================== -->
+        <section class="glass-card agri-advisory-section" style="margin-top: 2rem; padding: 1.5rem; border-radius: 16px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1);">
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                        <span>🌾</span> 72-Hour Agri-Advisory & Soil Health
+                    </h2>
+                    <p style="color: #94a3b8; font-size: 0.875rem; margin: 0.25rem 0 0 0;">
+                        Hourly soil moisture, temperature, and automated agronomic crop recommendations.
+                    </p>
+                </div>
+
+                <!-- City Search & Fetch Button -->
+                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="agriCityInput" placeholder="Enter Indian city (e.g. Ludhiana, Pune)..." value="Bengaluru" 
+                           style="padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(30, 41, 59, 0.8); color: #fff; outline: none; font-size: 0.9rem; width: 240px;">
+                    <button id="btnFetchAgriAdvisory" onclick="loadAgriAdvisory()" 
+                            style="padding: 0.6rem 1.2rem; border-radius: 8px; border: none; background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                        🔍 Fetch Advisory
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading & Error Indicators -->
+            <div id="agriLoading" style="display: none; text-align: center; padding: 2rem; color: #10b981; font-weight: 500;">
+                ⏳ Fetching 72-hour soil moisture forecast & computing crop advisories...
+            </div>
+            <div id="agriError" style="display: none; padding: 1rem; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; border-radius: 8px; color: #fca5a5; margin-bottom: 1rem;">
+            </div>
+
+            <!-- Content Area -->
+            <div id="agriContent">
+                <!-- KPI Badges -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 12px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Topsoil Moisture (0-7cm)</span>
+                        <div id="agriSoilMoist" style="font-size: 1.5rem; font-weight: 700; color: #38bdf8; margin-top: 0.25rem;">--</div>
+                    </div>
+                    <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 12px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Soil Temp (0-7cm)</span>
+                        <div id="agriSoilTemp" style="font-size: 1.5rem; font-weight: 700; color: #f59e0b; margin-top: 0.25rem;">--</div>
+                    </div>
+                    <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 12px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Relative Humidity</span>
+                        <div id="agriHumidity" style="font-size: 1.5rem; font-weight: 700; color: #a7f3d0; margin-top: 0.25rem;">--</div>
+                    </div>
+                    <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 12px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">72h Rain Forecast</span>
+                        <div id="agriRain" style="font-size: 1.5rem; font-weight: 700; color: #60a5fa; margin-top: 0.25rem;">--</div>
+                    </div>
+                </div>
+
+                <!-- Advisory Cards Grid -->
+                <h3 style="font-size: 1.1rem; color: #f8fafc; font-weight: 600; margin-bottom: 1rem;">Actionable Crop Advisories (<span id="agriLocationLabel">Bengaluru</span>)</h3>
+                <div id="agriCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                </div>
+
+                <!-- 72h Chart -->
+                <h3 style="font-size: 1.1rem; color: #f8fafc; font-weight: 600; margin-bottom: 1rem;">72-Hour Soil & Weather Trend Forecast</h3>
+                <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 12px; height: 320px; position: relative;">
+                    <canvas id="agriTrendChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+
     </main>
 
 
@@ -947,6 +1015,9 @@ document
 
 
                     dashboardInitialized = true;
+
+                    // Load Agri-Advisory initial data
+                    loadAgriAdvisory();
 
 
                     console.log(
@@ -1752,6 +1823,181 @@ async function searchCityWeather() {
 
     }
 }
+
+// ============================================================
+// AGRI-ADVISORY DASHBOARD CONTROLLER
+// ============================================================
+
+let agriTrendChartInstance = null;
+
+async function loadAgriAdvisory() {
+    const input = document.getElementById("agriCityInput");
+    const city = input ? input.value.trim() || "Bengaluru" : "Bengaluru";
+
+    const loading = document.getElementById("agriLoading");
+    const error = document.getElementById("agriError");
+
+    if (loading) loading.style.display = "block";
+    if (error) error.style.display = "none";
+
+    try {
+        const response = await fetchAgriAdvisory(city);
+        const data = response.data;
+
+        // Update Location Label
+        const locLabel = document.getElementById("agriLocationLabel");
+        if (locLabel) locLabel.innerText = `${data.city}, ${data.state}`;
+
+        // Update KPIs
+        const m = data.current_metrics;
+        document.getElementById("agriSoilMoist").innerText = `${m.soil_moisture} m³/m³ (${m.soil_moisture_pct}%)`;
+        document.getElementById("agriSoilTemp").innerText = `${m.soil_temperature} °C`;
+        document.getElementById("agriHumidity").innerText = `${m.relative_humidity} %`;
+        document.getElementById("agriRain").innerText = `${m.rain_72h} mm`;
+
+        // Advisory Cards Grid
+        const grid = document.getElementById("agriCardsGrid");
+        if (grid) {
+            grid.innerHTML = "";
+            data.advisories.forEach(adv => {
+                let badgeColor = "#10b981";
+                let borderColor = "rgba(16, 185, 129, 0.3)";
+                if (adv.level === "WARNING") {
+                    badgeColor = "#f59e0b";
+                    borderColor = "rgba(245, 158, 11, 0.4)";
+                } else if (adv.level === "ALERT") {
+                    badgeColor = "#ef4444";
+                    borderColor = "rgba(239, 68, 68, 0.4)";
+                }
+
+                const cardHtml = `
+                    <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid ${borderColor}; border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 600; text-transform: uppercase;">${adv.category}</span>
+                                <span style="background: ${badgeColor}22; color: ${badgeColor}; border: 1px solid ${badgeColor}; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">${adv.badge}</span>
+                            </div>
+                            <h4 style="color: #fff; font-size: 1rem; font-weight: 600; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>${adv.icon}</span> ${adv.title}
+                            </h4>
+                            <p style="color: #cbd5e1; font-size: 0.875rem; line-height: 1.4; margin: 0;">${adv.message}</p>
+                        </div>
+                    </div>
+                `;
+                grid.insertAdjacentHTML("beforeend", cardHtml);
+            });
+        }
+
+        // Render 72h Chart
+        renderAgriChart(data.chart_data);
+
+    } catch (err) {
+        console.error("Agri-advisory load failed:", err);
+        if (error) {
+            error.innerText = err.message || "Failed to load agricultural advisory forecast.";
+            error.style.display = "block";
+        }
+    } finally {
+        if (loading) loading.style.display = "none";
+    }
+}
+
+function renderAgriChart(chartData) {
+    const canvas = document.getElementById("agriTrendChart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    if (agriTrendChartInstance) {
+        agriTrendChartInstance.destroy();
+    }
+
+    agriTrendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [
+                {
+                    label: 'Soil Moisture (m³/m³)',
+                    data: chartData.soil_moisture,
+                    borderColor: '#38bdf8',
+                    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+                    yAxisID: 'ySoil',
+                    fill: true,
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 4
+                },
+                {
+                    label: 'Relative Humidity (%)',
+                    data: chartData.humidity,
+                    borderColor: '#a7f3d0',
+                    backgroundColor: 'transparent',
+                    yAxisID: 'yEnv',
+                    tension: 0.3,
+                    borderWidth: 2,
+                    borderDash: [4, 4],
+                    pointRadius: 0,
+                    pointHoverRadius: 4
+                },
+                {
+                    label: 'Soil Temp (°C)',
+                    data: chartData.soil_temperature,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'transparent',
+                    yAxisID: 'yEnv',
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    labels: { color: '#94a3b8' }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    titleColor: '#fff',
+                    bodyColor: '#cbd5e1',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#64748b', maxTicksLimit: 12 }
+                },
+                ySoil: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: { display: true, text: 'Soil Moisture (m³/m³)', color: '#38bdf8' },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#38bdf8' }
+                },
+                yEnv: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: { display: true, text: 'Humidity (%) / Temp (°C)', color: '#94a3b8' },
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: '#94a3b8' }
+                }
+            }
+        }
+    });
+}
+
 
     </script>
 

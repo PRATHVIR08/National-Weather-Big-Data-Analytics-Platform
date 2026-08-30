@@ -4,6 +4,7 @@ from services.weather import (
     fetch_weather_for_locations,
     fetch_weather_by_city,
 )
+from services.agri_advisory import fetch_agri_advisory
 
 
 router = APIRouter(
@@ -75,3 +76,28 @@ async def get_city_weather(
             status_code=500,
             detail=f"Weather service error: {str(e)}"
         )
+
+
+# ============================================================
+# AGRI-ADVISORY & SOIL FORECAST (72 HOURS)
+# ============================================================
+
+@router.get("/agri-advisory")
+async def get_agri_advisory(
+    city: str = Query("Bengaluru", description="Indian city name for Agri-Advisory forecast")
+):
+    """
+    Fetch 72-hour soil moisture, soil temperature, and relative humidity forecast,
+    and generate rule-based crop advisories.
+    """
+    try:
+        data = await fetch_agri_advisory(city)
+        return {
+            "success": True,
+            "data": data
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate agri-advisory: {str(e)}"
+        )

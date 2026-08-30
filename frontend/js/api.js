@@ -394,3 +394,21 @@ async function fetchWeatherByCity(city) {
 
     return await response.json();
 }
+
+
+// ============================================================
+// AGRI-ADVISORY API
+// ============================================================
+
+async function fetchAgriAdvisory(city = "Bengaluru") {
+    const response = await fetch(
+        `${API_BASE}/weather/agri-advisory?city=${encodeURIComponent(city)}`
+    );
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.detail || "Unable to fetch agri-advisory data");
+    }
+
+    return await response.json();
+}
