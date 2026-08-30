@@ -207,6 +207,14 @@ To test all major features end-to-end:
    - Sign in (or use dev credentials).
    - Review pending reports in the queue and test 1-click **✓ Verify** and **✕ Reject** buttons.
 
+5. **Test 72-Hour Agri-Advisory & Soil Health Engine (`index.html`):**
+   - Scroll to the **🌾 72-Hour Agri-Advisory & Soil Health** section at the bottom of `index.html`.
+   - Search for any Indian agricultural city (e.g. `Ludhiana`, `Pune`, `Bhopal`, `Bengaluru`, `Nashik`).
+   - Click **🔍 Fetch Advisory**.
+   - Verify topsoil moisture ($0\text{--}7\text{ cm}$), soil temperature, relative humidity, and 72-hour rain accumulation.
+   - Inspect the 4 automated agronomic crop advisory cards (**Irrigation**, **Disease/Pest Threat**, **Soil Aeration**, and **Field Spray Window**).
+   - Hover over the dual-axis **72-Hour Trend Line Chart** to analyze hourly soil moisture vs. atmospheric humidity trends.
+
 ---
 
 ## 🤖 ML Dataset & Model Management
@@ -231,6 +239,9 @@ If team members want to add custom datasets or retrain the ML model:
 | `GET` | `/admin/pending` | Admin JWT | List reports flagged as `pending` review. |
 | `POST` | `/admin/verify/{id}` | Admin JWT | Approves report and sets status to `verified`. |
 | `POST` | `/admin/reject/{id}` | Admin JWT | Rejects report and sets status to `rejected`. |
+| `GET` | `/weather/live` | Public | Fetch live weather for configured Indian locations using Open-Meteo API. |
+| `GET` | `/weather/city` | Public | Dynamic weather search by city name. |
+| `GET` | `/weather/agri-advisory` | Public | Fetch 72-hour soil moisture/temp & humidity forecast with automated agronomic crop advisories. |
 
 ---
 
@@ -247,7 +258,10 @@ If team members want to add custom datasets or retrain the ML model:
 │   ├── schema.sql                (Postgres database & storage initialization script)
 │   ├── routes/
 │   │   ├── reports.py            (Report ingestion, filtering & upload endpoints)
-│   │   └── admin.py              (Protected admin verification endpoints)
+│   │   ├── admin.py              (Protected admin verification endpoints)
+│   │   └── weather.py            (Live weather & Agri-advisory endpoints)
+│   ├── services/
+│   │   └── agri_advisory.py      (72-hour soil/humidity engine & rule-based advisories)
 │   ├── ml/
 │   │   ├── data/                 (ML Training CSV datasets)
 │   │   │   └── weather_reports_dataset.csv
@@ -281,3 +295,28 @@ If team members want to add custom datasets or retrain the ML model:
 Live Weather Monitoring
 
 The platform provides real-time weather monitoring across major cities in India. A predefined geographical dataset containing city names, states, latitude, and longitude is used to identify monitoring locations. These coordinates are not weather data; they simply define where weather observations should be obtained. For each location, the backend dynamically queries the Open-Meteo weather API to retrieve current meteorological conditions such as temperature, apparent temperature, humidity, wind speed, precipitation, and observation time. The collected data is returned through the FastAPI /weather/live endpoint and visualized as interactive weather markers on the Leaflet-based India map. The system automatically refreshes the weather information at regular intervals, ensuring that the displayed weather conditions remain up to date.
+
+---
+
+## 🌾 72-Hour Soil & Humidity Agri-Advisory Feature
+
+The platform includes an automated **Agronomic Crop Advisory Engine** designed to assist farmers, agricultural planners, and regional managers:
+
+### 1. Soil & Weather Forecast Parameters (Open-Meteo API)
+- **Topsoil Moisture ($0\text{--}7\text{ cm}$):** Measured in $\text{m}^3/\text{m}^3$ volumetric index.
+- **Soil Temperature ($0\text{--}7\text{ cm}$):** Measured in $^\circ\text{C}$.
+- **Relative Humidity ($2\text{ m}$):** Hourly atmospheric moisture levels (%).
+- **Precipitation:** 72-hour accumulated rainfall forecast ($\text{mm}$).
+
+### 2. Automated Agronomic Rule Engine
+- **Irrigation Management:** Evaluates topsoil moisture levels. Recommends delaying irrigation when $>12\text{ mm}$ of rain is expected to avoid overwatering and save energy, or flags urgent irrigation when moisture drop below threshold ($<0.18\text{ m}^3/\text{m}^3$).
+- **Disease & Pest Threat Warning:** Evaluates temperature and humidity combinations. High relative humidity ($>78\%$) and warm temperatures ($>22^\circ\text{C}$) trigger warnings for fungal spore germination (e.g. blight, mildew).
+- **Soil Aeration & Saturation:** Monitors soil waterlogging risk ($>0.42\text{ m}^3/\text{m}^3$) to protect root respiration.
+- **Foliar Spray & Fertilizer Window:** Detects dry periods with low wind speed ($<18\text{ km/h}$) ideal for agrochemical application.
+
+### 3. How to Use the Feature
+1. Launch the FastAPI backend (`python -m uvicorn main:app --reload --port 8000`).
+2. Open `frontend/index.html` in your browser.
+3. Navigate to the **72-Hour Agri-Advisory & Soil Health** component.
+4. Enter an Indian city name (e.g., *Ludhiana*, *Nashik*, *Bengaluru*, *Bhopal*) and click **Fetch Advisory**.
+5. View real-time KPI metrics, rule-generated advisory cards (`OPTIMAL`, `WARNING`, `ALERT`), and interact with the 72-hour trend line chart.
