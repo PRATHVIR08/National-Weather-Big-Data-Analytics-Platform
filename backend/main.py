@@ -6,6 +6,7 @@ from routes.reports import router as reports_router
 from routes.admin import router as admin_router
 from routes.weather import router as weather_router
 from supabase_client import get_supabase_client
+from routes.weather import router as weather_router
 
 app = FastAPI(
     title="National Weather Big Data Analytics Platform",
