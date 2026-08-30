@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from routes.reports import router as reports_router
 from routes.admin import router as admin_router
 from supabase_client import get_supabase_client
+from routes.weather import router as weather_router
 
 app = FastAPI(
     title="National Weather Big Data Analytics Platform",
@@ -29,6 +30,7 @@ app.mount("/static/uploads", StaticFiles(directory=upload_dir), name="uploads")
 # Include routers
 app.include_router(reports_router)
 app.include_router(admin_router)
+app.include_router(weather_router)
 
 @app.get("/", tags=["Health Check"])
 def root():
