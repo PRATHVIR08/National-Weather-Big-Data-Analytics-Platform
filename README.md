@@ -320,3 +320,109 @@ The platform includes an automated **Agronomic Crop Advisory Engine** designed t
 3. Navigate to the **72-Hour Agri-Advisory & Soil Health** component.
 4. Enter an Indian city name (e.g., *Ludhiana*, *Nashik*, *Bengaluru*, *Bhopal*) and click **Fetch Advisory**.
 5. View real-time KPI metrics, rule-generated advisory cards (`OPTIMAL`, `WARNING`, `ALERT`), and interact with the 72-hour trend line chart.
+
+# Dynamic City Weather Search
+
+## What I Implemented
+
+Added a dynamic city weather search feature.
+
+Users can enter any Indian city name and get its current weather using the Open-Meteo API.
+
+The search provides:
+
+- City and State
+- Temperature
+- Feels Like Temperature
+- Weather Condition
+- Humidity
+- Wind Speed
+- Wind Gust
+- Rain
+- Precipitation
+- Cloud Cover
+- Atmospheric Pressure
+- Last Updated Time
+
+The city does not need to be present in the dashboard's predefined city list. The backend automatically finds the city using Open-Meteo's geocoding service and then fetches its weather.
+
+## Backend Setup
+
+Go to the backend folder:
+
+cd backend
+
+Install the required packages:
+
+pip install -r requirements.txt
+
+Start the backend using:
+
+python main.py
+
+The backend should run at:
+
+http://127.0.0.1:8000
+
+## API Endpoint
+
+The city weather API is:
+
+http://127.0.0.1:8000/weather/city?city=Mumbai
+
+Example:
+
+http://127.0.0.1:8000/weather/city?city=Bengaluru
+
+Example:
+
+http://127.0.0.1:8000/weather/city?city=Delhi
+
+You can replace the city name with another Indian city.
+
+For example:
+
+http://127.0.0.1:8000/weather/city?city=Mangaluru
+
+http://127.0.0.1:8000/weather/city?city=Chennai
+
+http://127.0.0.1:8000/weather/city?city=Hyderabad
+
+## How It Works
+
+1. User enters a city name in the Weather Search box.
+2. Frontend sends the city name to the backend.
+3. Backend uses Open-Meteo Geocoding API to find the city's coordinates.
+4. Backend uses the coordinates to request current weather data.
+5. Backend sends the weather data back to the frontend.
+6. Frontend displays the weather information.
+
+## Important
+
+Make sure the FastAPI backend is running before using the city weather search.
+
+If the frontend shows "Connecting" or weather is not loading, first check that:
+
+http://127.0.0.1:8000
+
+is running on your computer.
+
+## Files Used
+
+Backend:
+
+backend/routes/weather.py
+
+backend/services/weather.py
+
+Frontend:
+
+The city search section is implemented in the dashboard HTML and uses the weather API function from:
+
+js/api.js
+
+## Data Source
+
+Weather data is provided by Open-Meteo.
+
+No API key is required for the Open-Meteo weather service.
