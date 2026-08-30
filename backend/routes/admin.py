@@ -144,3 +144,45 @@ def reject_report(report_id: int, authorization: Optional[str] = Header(None)):
             )
             
     raise HTTPException(status_code=404, detail="Report ID not found")
+
+
+# ============================================================
+# CAP EMERGENCY DISPATCH (SMS & EMAIL BROADCAST)
+# ============================================================
+
+from pydantic import BaseModel, Field
+from services.cap import dispatch_cap_alert
+
+class CAPAlertRequest(BaseModel):
+    event: str = Field("Flash Flood Warning", description="Weather hazard event")
+    severity: str = Field("EXTREME", description="EXTREME, SEVERE, or MODERATE")
+    urgency: str = Field("Immediate", description="Immediate, Expected, or Future")
+    certainty: str = Field("Observed", description="Observed or Likely")
+    region: str = Field("All India", description="Target geographical region/state")
+    headline: str = Field(..., description="Short urgent headline")
+    description: str = Field(..., description="Detailed emergency description and advice")
+    instruction: Optional[str] = Field("Follow local authority guidance.", description="Protective action instructions")
+    channels: List[str] = Field(default_factory=lambda: ["sms", "email"], description="Active broadcast channels: sms, email")
+
+@router.post("/dispatch-alert")
+def trigger_cap_dispatch(
+    payload: CAPAlertRequest,
+    authorization: Optional[str] = Header(None)
+):
+    """
+    Trigger CAP Emergency Broadcast across SMS (Twilio Mock) and Email (SMTP/SendGrid Mock).
+    Returns OASIS CAP v1.2 XML payload and multi-channel dispatch receipt.
+    """
+    # Verify Auth Token if provided
+    if authorization:
+        check_admin_auth(authorization)
+
+    try:
+        receipt = dispatch_cap_alert(payload.dict())
+        return receipt
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to execute CAP emergency dispatch: {str(e)}"
+        )
+

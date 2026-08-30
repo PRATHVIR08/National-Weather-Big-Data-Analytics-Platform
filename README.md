@@ -207,6 +207,14 @@ To test all major features end-to-end:
    - Sign in (or use dev credentials).
    - Review pending reports in the queue and test 1-click **✓ Verify** and **✕ Reject** buttons.
 
+5. **Test 72-Hour Agri-Advisory & Soil Health Engine (`index.html`):**
+   - Scroll to the **🌾 72-Hour Agri-Advisory & Soil Health** section at the bottom of `index.html`.
+   - Search for any Indian agricultural city (e.g. `Ludhiana`, `Pune`, `Bhopal`, `Bengaluru`, `Nashik`).
+   - Click **🔍 Fetch Advisory**.
+   - Verify topsoil moisture ($0\text{--}7\text{ cm}$), soil temperature, relative humidity, and 72-hour rain accumulation.
+   - Inspect the 4 automated agronomic crop advisory cards (**Irrigation**, **Disease/Pest Threat**, **Soil Aeration**, and **Field Spray Window**).
+   - Hover over the dual-axis **72-Hour Trend Line Chart** to analyze hourly soil moisture vs. atmospheric humidity trends.
+
 ---
 
 ## 🤖 ML Dataset & Model Management
@@ -231,6 +239,10 @@ If team members want to add custom datasets or retrain the ML model:
 | `GET` | `/admin/pending` | Admin JWT | List reports flagged as `pending` review. |
 | `POST` | `/admin/verify/{id}` | Admin JWT | Approves report and sets status to `verified`. |
 | `POST` | `/admin/reject/{id}` | Admin JWT | Rejects report and sets status to `rejected`. |
+| `POST` | `/admin/dispatch-alert` | Admin / Demo | Trigger multi-channel CAP emergency broadcast (SMS & Email) with OASIS CAP v1.2 XML receipt. |
+| `GET` | `/weather/live` | Public | Fetch live weather for configured Indian locations using Open-Meteo API. |
+| `GET` | `/weather/city` | Public | Dynamic weather search by city name. |
+| `GET` | `/weather/agri-advisory` | Public | Fetch 72-hour soil moisture/temp & humidity forecast with automated agronomic crop advisories. |
 
 ---
 
@@ -247,7 +259,11 @@ If team members want to add custom datasets or retrain the ML model:
 │   ├── schema.sql                (Postgres database & storage initialization script)
 │   ├── routes/
 │   │   ├── reports.py            (Report ingestion, filtering & upload endpoints)
-│   │   └── admin.py              (Protected admin verification endpoints)
+│   │   ├── admin.py              (Protected admin verification & CAP dispatch endpoints)
+│   │   └── weather.py            (Live weather & Agri-advisory endpoints)
+│   ├── services/
+│   │   ├── agri_advisory.py      (72-hour soil/humidity engine & rule-based advisories)
+│   │   └── cap.py                (OASIS CAP v1.2 XML generator & SMS/Email dispatch simulator)
 │   ├── ml/
 │   │   ├── data/                 (ML Training CSV datasets)
 │   │   │   └── weather_reports_dataset.csv
@@ -281,3 +297,113 @@ If team members want to add custom datasets or retrain the ML model:
 Live Weather Monitoring
 
 The platform provides real-time weather monitoring across major cities in India. A predefined geographical dataset containing city names, states, latitude, and longitude is used to identify monitoring locations. These coordinates are not weather data; they simply define where weather observations should be obtained. For each location, the backend dynamically queries the Open-Meteo weather API to retrieve current meteorological conditions such as temperature, apparent temperature, humidity, wind speed, precipitation, and observation time. The collected data is returned through the FastAPI /weather/live endpoint and visualized as interactive weather markers on the Leaflet-based India map. The system automatically refreshes the weather information at regular intervals, ensuring that the displayed weather conditions remain up to date.
+
+---
+
+## 🌾 72-Hour Soil & Humidity Agri-Advisory Feature
+
+The platform includes an automated **Agronomic Crop Advisory Engine** designed to assist farmers, agricultural planners, and regional managers:
+
+### 1. Soil & Weather Forecast Parameters (Open-Meteo API)
+- **Topsoil Moisture ($0\text{--}7\text{ cm}$):** Measured in $\text{m}^3/\text{m}^3$ volumetric index.
+- **Soil Temperature ($0\text{--}7\text{ cm}$):** Measured in $^\circ\text{C}$.
+- **Relative Humidity ($2\text{ m}$):** Hourly atmospheric moisture levels (%).
+- **Precipitation:** 72-hour accumulated rainfall forecast ($\text{mm}$).
+
+### 2. Automated Agronomic Rule Engine
+- **Irrigation Management:** Evaluates topsoil moisture levels. Recommends delaying irrigation when $>12\text{ mm}$ of rain is expected to avoid overwatering and save energy, or flags urgent irrigation when moisture drop below threshold ($<0.18\text{ m}^3/\text{m}^3$).
+- **Disease & Pest Threat Warning:** Evaluates temperature and humidity combinations. High relative humidity ($>78\%$) and warm temperatures ($>22^\circ\text{C}$) trigger warnings for fungal spore germination (e.g. blight, mildew).
+- **Soil Aeration & Saturation:** Monitors soil waterlogging risk ($>0.42\text{ m}^3/\text{m}^3$) to protect root respiration.
+- **Foliar Spray & Fertilizer Window:** Detects dry periods with low wind speed ($<18\text{ km/h}$) ideal for agrochemical application.
+
+### 3. **How to Use the Feature**
+1. Launch the FastAPI backend (`python -m uvicorn main:app --reload --port 8000`).
+2. Open `frontend/index.html` in your browser.
+3. Navigate to the **72-Hour Agri-Advisory & Soil Health** component.
+4. Enter an Indian city name (e.g., *Ludhiana*, *Nashik*, *Bengaluru*, *Bhopal*) and click **Fetch Advisory**.
+5. View real-time KPI metrics, rule-generated advisory cards (`OPTIMAL`, `WARNING`, `ALERT`), and interact with the 72-hour trend line chart.
+
+---
+
+## 🚨 CAP Emergency Dispatch System (SMS & Email Broadcast)
+
+The platform features an automated **CAP (OASIS Common Alerting Protocol v1.2) Emergency Broadcast System** for emergency management authorities:
+
+### 1. OASIS CAP v1.2 Standard XML Payload
+Generates fully compliant OASIS CAP v1.2 XML alert documents specifying:
+- `identifier`, `sender`, `sent`, `status`, `msgType`, `scope`.
+- `category` (Met), `event` (Flash Flood, Thunderstorm, Cyclone, Heatwave, Landslide).
+- `urgency` (Immediate/Expected), `severity` (EXTREME/SEVERE/MODERATE), `certainty` (Observed/Likely).
+- `headline`, `description`, `instruction`, `areaDesc`.
+
+### 2. Multi-Channel Dispatch Simulation
+- **📱 SMS Gateway (Twilio Mock):** Simulates targeted SMS broadcast to registered mobile subscribers in the selected region (e.g., 68,500 contacts in Punjab, 142,000 in Delhi NCR). Generates Twilio batch message SIDs.
+- **📧 Email Bulletin (SMTP / SendGrid Mock):** Simulates high-priority emergency bulletin emails to registered subscribers and authorities. Generates SendGrid batch IDs.
+
+### 3. How to Use & Test the Feature
+1. Open `frontend/admin.html` in your browser.
+2. Click **🚨 Launch CAP Emergency Dispatch** (or click **🚨 CAP Emergency Dispatch** inside the Admin panel).
+3. Select the target region (e.g., *Punjab*, *Maharashtra*, *Delhi NCR*, *Nationwide*), choose the hazard event type (*Flash Flood Warning*), and toggle **📱 SMS** and **📧 Email**.
+4. Click **🚀 Broadcast Alert Now**.
+5. View the real-time delivery receipt with total population reached, SMS & Email delivery metrics, and expand the **OASIS CAP v1.2 XML Payload** drawer.
+
+---
+
+# Dynamic City Weather Search
+
+## What I Implemented
+
+Added a dynamic city weather search feature.
+
+Users can enter any Indian city name and get its current weather using the Open-Meteo API.
+
+The search provides:
+- City and State
+- Temperature
+- Feels Like Temperature
+- Weather Condition
+- Humidity
+- Wind Speed
+- Wind Gust
+- Rain
+- Precipitation
+- Cloud Cover
+- Atmospheric Pressure
+- Last Updated Time
+
+The city does not need to be present in the dashboard's predefined city list. The backend automatically finds the city using Open-Meteo's geocoding service and then fetches its weather.
+
+## Backend Setup
+
+Go to the backend folder:
+```bash
+cd backend
+pip install -r requirements.txt
+python main.py
+```
+
+The backend should run at:
+`http://127.0.0.1:8000`
+
+## API Endpoint
+
+The city weather API is:
+`http://127.0.0.1:8000/weather/city?city=Mumbai`
+
+Example:
+`http://127.0.0.1:8000/weather/city?city=Bengaluru`
+`http://127.0.0.1:8000/weather/city?city=Delhi`
+
+## How It Works
+
+1. User enters a city name in the Weather Search box.
+2. Frontend sends the city name to the backend.
+3. Backend uses Open-Meteo Geocoding API to find the city's coordinates.
+4. Backend uses the coordinates to request current weather data.
+5. Backend sends the weather data back to the frontend.
+6. Frontend displays the weather information.
+
+## Data Source
+
+Weather data is provided by Open-Meteo. No API key is required.
+

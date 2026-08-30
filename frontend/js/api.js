@@ -460,4 +460,4 @@ async function fetchReportsInBounds(minLat, maxLat, minLng, maxLng, additionalFi
         max_lng: maxLng
     });
 }
-
+
