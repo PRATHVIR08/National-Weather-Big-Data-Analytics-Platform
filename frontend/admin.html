@@ -55,6 +55,13 @@
                     Sign In to Panel
                 </button>
             </form>
+
+            <div style="margin-top: 1.5rem; pt: 1rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Demonstration Emergency Mode:</p>
+                <button type="button" onclick="openCapModal()" style="width: 100%; padding: 0.65rem; border-radius: 8px; border: none; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+                    🚨 Launch CAP Emergency Dispatch
+                </button>
+            </div>
         </section>
 
         <!-- Admin Control Panel Section (shown when authenticated) -->
@@ -67,7 +74,10 @@
                         Review citizen and social reports flagged as pending (trust score 40–69).
                     </p>
                 </div>
-                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                    <button onclick="openCapModal()" style="padding: 0.6rem 1.2rem; border-radius: 8px; border: none; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
+                        🚨 CAP Emergency Dispatch
+                    </button>
                     <button id="btnRefreshPending" class="form-control" style="cursor: pointer;">🔄 Refresh Queue</button>
                     <button id="btnLogout" class="btn-danger" style="cursor: pointer;">Log Out</button>
                 </div>
@@ -99,6 +109,120 @@
             </div>
 
         </section>
+
+
+        <!-- =====================================================
+             CAP EMERGENCY DISPATCH MODAL
+        ====================================================== -->
+        <div id="capModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); z-index: 9999; justify-content: center; align-items: center; padding: 1.5rem;">
+            <div style="background: #1e293b; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 16px; max-width: 650px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(239, 68, 68, 0.25);">
+                
+                <!-- Modal Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                    <div>
+                        <h2 style="margin: 0; color: #f8fafc; font-size: 1.4rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🚨</span> CAP Emergency Broadcast Dispatch
+                        </h2>
+                        <p style="margin: 0.25rem 0 0 0; color: #94a3b8; font-size: 0.85rem;">
+                            OASIS Common Alerting Protocol v1.2 Multi-Channel Alert System
+                        </p>
+                    </div>
+                    <button onclick="closeCapModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">✕</button>
+                </div>
+
+                <!-- Form Controls -->
+                <form id="capForm" onsubmit="handleCapDispatch(event)">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Target Region / State</label>
+                            <select id="capRegion" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff;">
+                                <option value="All India">All India (Nationwide)</option>
+                                <option value="Punjab">Punjab</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Delhi NCR">Delhi NCR</option>
+                                <option value="Assam">Assam</option>
+                                <option value="West Bengal">West Bengal</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Gujarat">Gujarat</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Hazard Event Type</label>
+                            <select id="capEvent" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff;">
+                                <option value="Flash Flood Warning">Flash Flood Warning</option>
+                                <option value="Severe Thunderstorm">Severe Thunderstorm Alert</option>
+                                <option value="Extreme Heatwave">Extreme Heatwave Advisory</option>
+                                <option value="Tropical Cyclone Warning">Tropical Cyclone Warning</option>
+                                <option value="Landslide Threat">Landslide Threat Alert</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Severity Level</label>
+                            <select id="capSeverity" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #f87171; font-weight: 600;">
+                                <option value="EXTREME">🔴 EXTREME</option>
+                                <option value="SEVERE">🟠 SEVERE</option>
+                                <option value="MODERATE">🟡 MODERATE</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Urgency</label>
+                            <select id="capUrgency" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff;">
+                                <option value="Immediate">Immediate Action</option>
+                                <option value="Expected">Expected within 1-6 hrs</option>
+                                <option value="Future">Future Threat</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Certainty</label>
+                            <select id="capCertainty" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff;">
+                                <option value="Observed">Observed (High)</option>
+                                <option value="Likely">Likely (>50%)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Dispatch Channels Checkboxes -->
+                    <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                        <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 600;">Broadcast Delivery Channels</label>
+                        <div style="display: flex; gap: 1.5rem;">
+                            <label style="color: #38bdf8; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                                <input type="checkbox" id="capChanSms" checked style="accent-color: #0284c7;"> 📱 SMS Gateway (Twilio Mock)
+                            </label>
+                            <label style="color: #a7f3d0; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                                <input type="checkbox" id="capChanEmail" checked style="accent-color: #10b981;"> 📧 Email Bulletin (SMTP/SendGrid Mock)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Alert Headline</label>
+                        <input type="text" id="capHeadline" required value="CRITICAL: Severe Flash Flood Warning - Evacuate Low-Lying Riverbanks"
+                               style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff; font-size: 0.9rem;">
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Detailed Emergency Description & Guidance</label>
+                        <textarea id="capDescription" rows="3" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff; font-size: 0.875rem;">Heavy water release from reservoirs coupled with cloudburst. Evacuate low-lying riverbanks immediately. Move to designated emergency shelters on higher ground.</textarea>
+                    </div>
+
+                    <!-- Dispatch Action Button -->
+                    <div style="display: flex; justify-content: flex-end; gap: 1rem; align-items: center;">
+                        <button type="button" onclick="closeCapModal()" style="padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #cbd5e1; cursor: pointer;">Cancel</button>
+                        <button type="submit" id="btnDispatchCap" style="padding: 0.6rem 1.5rem; border-radius: 8px; border: none; background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                            🚀 Broadcast Alert Now
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Receipt Output Container -->
+                <div id="capReceiptContainer" style="display: none; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                </div>
+            </div>
+        </div>
 
     </main>
 
@@ -252,6 +376,98 @@
             } catch (err) {
                 alert(`Failed to reject: ${err.message}`);
             }
+        }
+
+        // ============================================================
+        // CAP EMERGENCY DISPATCH MODAL CONTROLLER
+        // ============================================================
+
+        function openCapModal() {
+            const modal = document.getElementById("capModal");
+            const receipt = document.getElementById("capReceiptContainer");
+            if (receipt) receipt.style.display = "none";
+            if (modal) modal.style.display = "flex";
+        }
+
+        function closeCapModal() {
+            const modal = document.getElementById("capModal");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function handleCapDispatch(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnDispatchCap");
+            const receiptContainer = document.getElementById("capReceiptContainer");
+            
+            const channels = [];
+            if (document.getElementById("capChanSms")?.checked) channels.push("sms");
+            if (document.getElementById("capChanEmail")?.checked) channels.push("email");
+
+            if (channels.length === 0) {
+                alert("Please select at least one delivery channel (SMS or Email).");
+                return;
+            }
+
+            const alertPayload = {
+                region: document.getElementById("capRegion").value,
+                event: document.getElementById("capEvent").value,
+                severity: document.getElementById("capSeverity").value,
+                urgency: document.getElementById("capUrgency").value,
+                certainty: document.getElementById("capCertainty").value,
+                headline: document.getElementById("capHeadline").value,
+                description: document.getElementById("capDescription").value,
+                channels: channels
+            };
+
+            btn.disabled = true;
+            btn.innerHTML = "⏳ Dispatching Multi-Channel Alert...";
+
+            try {
+                const response = await dispatchCapAlert(alertPayload);
+                const r = response.dispatch_receipt;
+
+                receiptContainer.style.display = "block";
+                receiptContainer.innerHTML = `
+                    <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; border-radius: 12px; padding: 1.25rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <h3 style="color: #34d399; margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>✅</span> CAP Emergency Alert Dispatched Successfully
+                            </h3>
+                            <span style="background: #10b981; color: #064e3b; font-weight: 800; font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 12px;">${r.status}</span>
+                        </div>
+                        <p style="color: #cbd5e1; font-size: 0.85rem; margin: 0 0 1rem 0;">
+                            Identifier: <strong style="color: #fff;">${r.alert_identifier}</strong> | Target: <strong style="color: #38bdf8;">${r.region}</strong> | Total People Reached: <strong style="color: #f59e0b;">${r.total_population_notified.toLocaleString()}</strong>
+                        </p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                            <div style="background: rgba(15,23,42,0.6); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                                <div style="font-size: 0.75rem; color: #94a3b8;">📱 SMS GATEWAY (Twilio Mock)</div>
+                                <div style="color: #38bdf8; font-weight: 700; font-size: 1.1rem;">${r.sms_metrics.enabled ? r.sms_metrics.recipients_reached.toLocaleString() + ' Contacts' : 'Disabled'}</div>
+                                <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Batch SID: ${r.sms_metrics.batch_sid || 'N/A'}</div>
+                            </div>
+                            <div style="background: rgba(15,23,42,0.6); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2);">
+                                <div style="font-size: 0.75rem; color: #94a3b8;">📧 EMAIL BULLETIN (SMTP Mock)</div>
+                                <div style="color: #a7f3d0; font-weight: 700; font-size: 1.1rem;">${r.email_metrics.enabled ? r.email_metrics.recipients_reached.toLocaleString() + ' Subscribers' : 'Disabled'}</div>
+                                <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Batch ID: ${r.email_metrics.batch_id || 'N/A'}</div>
+                            </div>
+                        </div>
+
+                        <details style="margin-top: 0.5rem; background: #0f172a; border-radius: 8px; padding: 0.75rem;">
+                            <summary style="color: #94a3b8; font-size: 0.8rem; cursor: pointer; font-weight: 600;">View OASIS CAP v1.2 XML Payload</summary>
+                            <pre style="color: #38bdf8; font-size: 0.75rem; font-family: monospace; white-space: pre-wrap; margin-top: 0.5rem; overflow-x: auto;">${escapeHtml(r.cap_xml)}</pre>
+                        </details>
+                    </div>
+                `;
+            } catch (err) {
+                alert(`Dispatch failed: ${err.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "🚀 Broadcast Alert Now";
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
     </script>
 </body>

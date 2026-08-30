@@ -411,4 +411,37 @@ async function fetchAgriAdvisory(city = "Bengaluru") {
     }
 
     return await response.json();
-}
+}
+
+
+// ============================================================
+// CAP EMERGENCY DISPATCH API (SMS & EMAIL)
+// ============================================================
+
+async function dispatchCapAlert(alertData) {
+    const headers = {
+        "Content-Type": "application/json"
+    };
+
+    const adminToken = localStorage.getItem("admin_jwt");
+    if (adminToken) {
+        headers["Authorization"] = `Bearer ${adminToken}`;
+    }
+
+    const response = await fetch(
+        `${API_BASE}/admin/dispatch-alert`,
+        {
+            method: "POST",
+            headers,
+            body: JSON.stringify(alertData)
+        }
+    );
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.detail || "Failed to execute emergency broadcast");
+    }
+
+    return await response.json();
+}
+

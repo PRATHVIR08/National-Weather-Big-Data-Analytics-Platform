@@ -239,6 +239,7 @@ If team members want to add custom datasets or retrain the ML model:
 | `GET` | `/admin/pending` | Admin JWT | List reports flagged as `pending` review. |
 | `POST` | `/admin/verify/{id}` | Admin JWT | Approves report and sets status to `verified`. |
 | `POST` | `/admin/reject/{id}` | Admin JWT | Rejects report and sets status to `rejected`. |
+| `POST` | `/admin/dispatch-alert` | Admin / Demo | Trigger multi-channel CAP emergency broadcast (SMS & Email) with OASIS CAP v1.2 XML receipt. |
 | `GET` | `/weather/live` | Public | Fetch live weather for configured Indian locations using Open-Meteo API. |
 | `GET` | `/weather/city` | Public | Dynamic weather search by city name. |
 | `GET` | `/weather/agri-advisory` | Public | Fetch 72-hour soil moisture/temp & humidity forecast with automated agronomic crop advisories. |
@@ -258,10 +259,11 @@ If team members want to add custom datasets or retrain the ML model:
 │   ├── schema.sql                (Postgres database & storage initialization script)
 │   ├── routes/
 │   │   ├── reports.py            (Report ingestion, filtering & upload endpoints)
-│   │   ├── admin.py              (Protected admin verification endpoints)
+│   │   ├── admin.py              (Protected admin verification & CAP dispatch endpoints)
 │   │   └── weather.py            (Live weather & Agri-advisory endpoints)
 │   ├── services/
-│   │   └── agri_advisory.py      (72-hour soil/humidity engine & rule-based advisories)
+│   │   ├── agri_advisory.py      (72-hour soil/humidity engine & rule-based advisories)
+│   │   └── cap.py                (OASIS CAP v1.2 XML generator & SMS/Email dispatch simulator)
 │   ├── ml/
 │   │   ├── data/                 (ML Training CSV datasets)
 │   │   │   └── weather_reports_dataset.csv
@@ -314,9 +316,33 @@ The platform includes an automated **Agronomic Crop Advisory Engine** designed t
 - **Soil Aeration & Saturation:** Monitors soil waterlogging risk ($>0.42\text{ m}^3/\text{m}^3$) to protect root respiration.
 - **Foliar Spray & Fertilizer Window:** Detects dry periods with low wind speed ($<18\text{ km/h}$) ideal for agrochemical application.
 
-### 3. How to Use the Feature
+### 3. **How to Use the Feature**
 1. Launch the FastAPI backend (`python -m uvicorn main:app --reload --port 8000`).
 2. Open `frontend/index.html` in your browser.
 3. Navigate to the **72-Hour Agri-Advisory & Soil Health** component.
 4. Enter an Indian city name (e.g., *Ludhiana*, *Nashik*, *Bengaluru*, *Bhopal*) and click **Fetch Advisory**.
 5. View real-time KPI metrics, rule-generated advisory cards (`OPTIMAL`, `WARNING`, `ALERT`), and interact with the 72-hour trend line chart.
+
+---
+
+## 🚨 CAP Emergency Dispatch System (SMS & Email Broadcast)
+
+The platform features an automated **CAP (OASIS Common Alerting Protocol v1.2) Emergency Broadcast System** for emergency management authorities:
+
+### 1. OASIS CAP v1.2 Standard XML Payload
+Generates fully compliant OASIS CAP v1.2 XML alert documents specifying:
+- `identifier`, `sender`, `sent`, `status`, `msgType`, `scope`.
+- `category` (Met), `event` (Flash Flood, Thunderstorm, Cyclone, Heatwave, Landslide).
+- `urgency` (Immediate/Expected), `severity` (EXTREME/SEVERE/MODERATE), `certainty` (Observed/Likely).
+- `headline`, `description`, `instruction`, `areaDesc`.
+
+### 2. Multi-Channel Dispatch Simulation
+- **📱 SMS Gateway (Twilio Mock):** Simulates targeted SMS broadcast to registered mobile subscribers in the selected region (e.g., 68,500 contacts in Punjab, 142,000 in Delhi NCR). Generates Twilio batch message SIDs.
+- **📧 Email Bulletin (SMTP / SendGrid Mock):** Simulates high-priority emergency bulletin emails to registered subscribers and authorities. Generates SendGrid batch IDs.
+
+### 3. How to Use & Test the Feature
+1. Open `frontend/admin.html` in your browser.
+2. Click **🚨 Launch CAP Emergency Dispatch** (or click **🚨 CAP Emergency Dispatch** inside the Admin panel).
+3. Select the target region (e.g., *Punjab*, *Maharashtra*, *Delhi NCR*, *Nationwide*), choose the hazard event type (*Flash Flood Warning*), and toggle **📱 SMS** and **📧 Email**.
+4. Click **🚀 Broadcast Alert Now**.
+5. View the real-time delivery receipt with total population reached, SMS & Email delivery metrics, and expand the **OASIS CAP v1.2 XML Payload** drawer.
