@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submit Weather Incident Report — National Weather Analytics</title>
-    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
     <!-- Header Navigation -->
@@ -29,53 +33,120 @@
     <!-- Main Container -->
     <main class="form-page-container">
         <div class="glass-card" style="padding: 2.5rem;">
-            
+
             <div class="form-header">
                 <h2>Submit Weather Report</h2>
-                <p>Help crowd-verify weather hazards across India. Reports are checked automatically for duplicates and trust scores.</p>
+                <p>Help crowd-verify weather hazards across India. Reports are checked automatically for duplicates and
+                    trust scores.</p>
             </div>
 
             <form id="reportForm">
                 <div class="form-grid">
-                    
+
                     <div class="filter-group full-width">
                         <label for="textContent">Incident Description *</label>
-                        <textarea id="textContent" class="form-control" rows="4" placeholder="Describe the weather condition (e.g. Heavy waterlogging on MG Road, water level 2 feet deep, traffic stuck...)" required></textarea>
+                        <textarea id="textContent" class="form-control" rows="4"
+                            placeholder="Describe the weather condition (e.g. Heavy waterlogging on MG Road, water level 2 feet deep, traffic stuck...)"
+                            required></textarea>
                     </div>
 
                     <div class="filter-group">
                         <label for="cityInput">City *</label>
-                        <input type="text" id="cityInput" class="form-control" placeholder="e.g. Mumbai, Chennai" required>
+                        <input type="text" id="cityInput" class="form-control" placeholder="e.g. Mumbai, Chennai"
+                            required>
                     </div>
 
                     <div class="filter-group">
                         <label for="stateInput">State *</label>
-                        <input type="text" id="stateInput" class="form-control" placeholder="e.g. Maharashtra, Tamil Nadu" required>
+                        <input type="text" id="stateInput" class="form-control"
+                            placeholder="e.g. Maharashtra, Tamil Nadu" required>
                     </div>
 
                     <!-- Geolocation Inputs -->
                     <div class="filter-group">
                         <label for="latInput">Latitude (Auto / Manual) *</label>
-                        <input type="number" step="any" id="latInput" class="form-control" placeholder="e.g. 19.0760" required>
+                        <input type="number" step="any" id="latInput" class="form-control" placeholder="e.g. 19.0760"
+                            required>
                     </div>
 
                     <div class="filter-group">
                         <label for="lngInput">Longitude (Auto / Manual) *</label>
-                        <input type="number" step="any" id="lngInput" class="form-control" placeholder="e.g. 72.8777" required>
+                        <input type="number" step="any" id="lngInput" class="form-control" placeholder="e.g. 72.8777"
+                            required>
+                    </div>
+                    <!-- =====================================================
+     MAP LOCATION PICKER
+====================================================== -->
+
+                    <div class="location-picker-section">
+
+                        <button type="button" id="btnPickLocation" class="btn-location-picker">
+                            📍 Pin Location on Map
+                        </button>
+
+                        <span id="locationPickerStatus" class="location-picker-status">
+                            Click the button to select the incident location
+                        </span>
+
                     </div>
 
+
+                    <!-- Map Picker -->
+
+                    <div id="locationPickerContainer" class="location-picker-container" style="display:none;">
+
+                        <div class="location-picker-header">
+
+                            <div>
+                                <strong>📍 Select Incident Location</strong>
+
+                                <p>
+                                    Click anywhere on the map to place the incident pin.
+                                </p>
+                            </div>
+
+                            <button type="button" id="btnCloseLocationPicker" class="location-picker-close">
+                                ✕
+                            </button>
+
+                        </div>
+
+                        <div id="locationPickerMap"></div>
+
+                        <div class="selected-location-info">
+
+                            <span>
+                                Latitude:
+                                <strong id="selectedLatitude">—</strong>
+                            </span>
+
+                            <span>
+                                Longitude:
+                                <strong id="selectedLongitude">—</strong>
+                            </span>
+
+                        </div>
+
+                        <button type="button" id="btnConfirmLocation" class="btn-primary" disabled>
+                            ✓ Use This Location
+                        </button>
+
+                    </div>
                     <div class="filter-group full-width">
-                        <button type="button" id="btnGPS" class="btn-primary" style="background: linear-gradient(135deg, var(--primary-teal), #0d9488); width: fit-content;">
+                        <button type="button" id="btnGPS" class="btn-primary"
+                            style="background: linear-gradient(135deg, var(--primary-teal), #0d9488); width: fit-content;">
                             📍 Capture Current GPS Location
                         </button>
-                        <span id="gpsStatus" style="font-size:0.85rem; color:var(--text-secondary); margin-left:0.5rem;"></span>
+                        <span id="gpsStatus"
+                            style="font-size:0.85rem; color:var(--text-secondary); margin-left:0.5rem;"></span>
                     </div>
 
                     <!-- Media Upload -->
                     <div class="filter-group full-width">
                         <label for="mediaFile">Photo / Video Proof (Optional — adds +20 Trust Score)</label>
                         <input type="file" id="mediaFile" class="form-control" accept="image/*,video/*">
-                        <div id="uploadProgress" style="font-size:0.85rem; color:var(--primary-teal); margin-top:0.4rem; display:none;">
+                        <div id="uploadProgress"
+                            style="font-size:0.85rem; color:var(--primary-teal); margin-top:0.4rem; display:none;">
                             Uploading media...
                         </div>
                     </div>
@@ -83,10 +154,12 @@
                 </div>
 
                 <!-- Submission Status Box -->
-                <div id="statusMessage" style="margin-top: 1.5rem; display: none; padding: 1rem; border-radius: 8px;"></div>
+                <div id="statusMessage" style="margin-top: 1.5rem; display: none; padding: 1rem; border-radius: 8px;">
+                </div>
 
                 <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
-                    <a href="index.html" class="form-control" style="width: auto; text-decoration: none; text-align: center;">Cancel</a>
+                    <a href="index.html" class="form-control"
+                        style="width: auto; text-decoration: none; text-align: center;">Cancel</a>
                     <button type="submit" id="btnSubmitReport" class="btn-primary">
                         Submit Report
                     </button>
@@ -98,101 +171,753 @@
 
     <!-- Dependencies -->
     <script src="js/api.js"></script>
-    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
     <script>
+
         let uploadedMediaUrl = null;
 
+        // =========================================================
+        // MAP PICKER VARIABLES
+        // =========================================================
+
+        let locationPickerMap = null;
+        let locationPickerMarker = null;
+
+        let selectedLat = null;
+        let selectedLng = null;
+
+
+        // =========================================================
+        // PAGE INITIALIZATION
+        // =========================================================
+
         document.addEventListener("DOMContentLoaded", () => {
-            
-            // 1. Geolocation capture button
-            document.getElementById("btnGPS").addEventListener("click", () => {
-                const statusSpan = document.getElementById("gpsStatus");
-                if (!navigator.geolocation) {
-                    statusSpan.innerText = "Geolocation is not supported by your browser.";
-                    return;
-                }
-                statusSpan.innerText = "Locating position...";
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        document.getElementById("latInput").value = pos.coords.latitude.toFixed(6);
-                        document.getElementById("lngInput").value = pos.coords.longitude.toFixed(6);
-                        statusSpan.innerText = `✓ GPS captured: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
-                    },
-                    (err) => {
-                        statusSpan.innerText = `GPS Error: ${err.message}`;
+
+            console.log("Report page initialized");
+
+
+            // -----------------------------------------------------
+            // GPS BUTTON
+            // -----------------------------------------------------
+
+            document
+                .getElementById("btnGPS")
+                .addEventListener("click", captureGPS);
+
+
+            // -----------------------------------------------------
+            // OPEN MAP PICKER
+            // -----------------------------------------------------
+
+            document
+                .getElementById("btnPickLocation")
+                .addEventListener(
+                    "click",
+                    openLocationPicker
+                );
+
+
+            // -----------------------------------------------------
+            // CLOSE MAP PICKER
+            // -----------------------------------------------------
+
+            document
+                .getElementById("btnCloseLocationPicker")
+                .addEventListener(
+                    "click",
+                    closeLocationPicker
+                );
+
+
+            // -----------------------------------------------------
+            // CONFIRM SELECTED LOCATION
+            // -----------------------------------------------------
+
+            document
+                .getElementById("btnConfirmLocation")
+                .addEventListener(
+                    "click",
+                    confirmLocation
+                );
+
+
+            // -----------------------------------------------------
+            // MEDIA UPLOAD
+            // -----------------------------------------------------
+
+            document
+                .getElementById("mediaFile")
+                .addEventListener(
+                    "change",
+                    handleMediaUpload
+                );
+
+
+            // -----------------------------------------------------
+            // FORM SUBMIT
+            // -----------------------------------------------------
+
+            document
+                .getElementById("reportForm")
+                .addEventListener(
+                    "submit",
+                    submitWeatherReport
+                );
+
+        });
+
+
+
+        // =========================================================
+        // OPEN LOCATION PICKER
+        // =========================================================
+
+        function openLocationPicker() {
+
+            const container =
+                document.getElementById(
+                    "locationPickerContainer"
+                );
+
+            container.style.display = "block";
+
+
+            // Create map only once
+
+            if (!locationPickerMap) {
+
+                // Center of India
+
+                locationPickerMap =
+                    L.map("locationPickerMap")
+                        .setView(
+                            [22.5937, 78.9629],
+                            5
+                        );
+
+
+                // OpenStreetMap tiles
+
+                L.tileLayer(
+                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    {
+                        maxZoom: 19,
+
+                        attribution:
+                            '&copy; OpenStreetMap contributors'
+                    }
+                ).addTo(locationPickerMap);
+
+
+                // -------------------------------------------------
+                // MAP CLICK
+                // -------------------------------------------------
+
+                locationPickerMap.on(
+                    "click",
+                    function (event) {
+
+                        selectMapLocation(
+                            event.latlng.lat,
+                            event.latlng.lng
+                        );
+
                     }
                 );
-            });
 
-            // 2. File Upload Change Listener
-            document.getElementById("mediaFile").addEventListener("change", async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
+            }
 
-                const progressDiv = document.getElementById("uploadProgress");
-                progressDiv.style.display = "block";
-                progressDiv.innerText = "Uploading media to weather-media bucket...";
 
-                try {
-                    const result = await uploadMedia(file);
-                    uploadedMediaUrl = result.url;
-                    progressDiv.innerHTML = `✓ Upload complete: <a href="${result.url}" target="_blank" style="color:#38bdf8;">View File</a>`;
-                } catch (err) {
-                    progressDiv.innerHTML = `<span style="color:#ef4444;">Upload failed: ${err.message}</span>`;
+            // Fix Leaflet rendering when container becomes visible
+
+            setTimeout(() => {
+
+                locationPickerMap.invalidateSize();
+
+            }, 200);
+
+        }
+
+
+
+        // =========================================================
+        // SELECT LOCATION FROM MAP
+        // =========================================================
+
+        function selectMapLocation(
+            latitude,
+            longitude
+        ) {
+
+            selectedLat = latitude;
+            selectedLng = longitude;
+
+
+            // Remove previous marker
+
+            if (locationPickerMarker) {
+
+                locationPickerMap.removeLayer(
+                    locationPickerMarker
+                );
+
+            }
+
+
+            // Create new marker
+
+            locationPickerMarker =
+                L.marker(
+                    [latitude, longitude]
+                )
+                    .addTo(locationPickerMap);
+
+
+            // Popup
+
+            locationPickerMarker
+                .bindPopup(
+                    `
+                <strong>Selected Location</strong><br>
+                Latitude: ${latitude.toFixed(6)}<br>
+                Longitude: ${longitude.toFixed(6)}
+                `
+                )
+                .openPopup();
+
+
+            // Update display
+
+            document.getElementById(
+                "selectedLatitude"
+            ).innerText =
+                latitude.toFixed(6);
+
+
+            document.getElementById(
+                "selectedLongitude"
+            ).innerText =
+                longitude.toFixed(6);
+
+
+            // Enable confirmation button
+
+            document.getElementById(
+                "btnConfirmLocation"
+            ).disabled = false;
+
+
+            // Update status
+
+            document.getElementById(
+                "locationPickerStatus"
+            ).innerText =
+                "✓ Location selected. Click 'Use This Location'.";
+
+
+            document.getElementById(
+                "locationPickerStatus"
+            ).style.color =
+                "#10b981";
+
+        }
+
+
+
+        // =========================================================
+        // CONFIRM LOCATION
+        // =========================================================
+
+        function confirmLocation() {
+
+            if (
+                selectedLat === null ||
+                selectedLng === null
+            ) {
+
+                return;
+
+            }
+
+
+            // Put coordinates into form
+
+            document.getElementById(
+                "latInput"
+            ).value =
+                selectedLat.toFixed(6);
+
+
+            document.getElementById(
+                "lngInput"
+            ).value =
+                selectedLng.toFixed(6);
+
+
+            // Update status
+
+            document.getElementById(
+                "locationPickerStatus"
+            ).innerText =
+                `✓ Map location selected: ${selectedLat.toFixed(4)}, ${selectedLng.toFixed(4)}`;
+
+
+            document.getElementById(
+                "locationPickerStatus"
+            ).style.color =
+                "#10b981";
+
+
+            // Close picker
+
+            closeLocationPicker();
+
+        }
+
+
+
+        // =========================================================
+        // CLOSE LOCATION PICKER
+        // =========================================================
+
+        function closeLocationPicker() {
+
+            document.getElementById(
+                "locationPickerContainer"
+            ).style.display = "none";
+
+
+            if (locationPickerMap) {
+
+                setTimeout(() => {
+
+                    locationPickerMap.invalidateSize();
+
+                }, 200);
+
+            }
+
+        }
+
+
+
+        // =========================================================
+        // GPS LOCATION
+        // =========================================================
+
+        function captureGPS() {
+
+            const statusSpan =
+                document.getElementById(
+                    "gpsStatus"
+                );
+
+
+            if (!navigator.geolocation) {
+
+                statusSpan.innerText =
+                    "Geolocation is not supported by your browser.";
+
+                return;
+
+            }
+
+
+            statusSpan.innerText =
+                "Locating position...";
+
+
+            navigator.geolocation.getCurrentPosition(
+
+                function (position) {
+
+                    const latitude =
+                        position.coords.latitude;
+
+                    const longitude =
+                        position.coords.longitude;
+
+
+                    // Fill form
+
+                    document.getElementById(
+                        "latInput"
+                    ).value =
+                        latitude.toFixed(6);
+
+
+                    document.getElementById(
+                        "lngInput"
+                    ).value =
+                        longitude.toFixed(6);
+
+
+                    statusSpan.innerText =
+                        `✓ GPS captured: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+
+                },
+
+
+                function (error) {
+
+                    statusSpan.innerText =
+                        `GPS Error: ${error.message}`;
+
+                },
+
+                {
+                    enableHighAccuracy: true,
+
+                    timeout: 10000,
+
+                    maximumAge: 0
+
                 }
-            });
 
-            // 3. Form Submit Handler
-            document.getElementById("reportForm").addEventListener("submit", async (e) => {
-                e.preventDefault();
-                
-                const btnSubmit = document.getElementById("btnSubmitReport");
-                const statusMsg = document.getElementById("statusMessage");
+            );
 
-                btnSubmit.disabled = true;
-                btnSubmit.innerText = "Processing ML Pipeline...";
+        }
 
-                const payload = {
-                    source: "citizen",
-                    text_content: document.getElementById("textContent").value,
-                    city: document.getElementById("cityInput").value,
-                    state: document.getElementById("stateInput").value,
-                    latitude: parseFloat(document.getElementById("latInput").value),
-                    longitude: parseFloat(document.getElementById("lngInput").value),
-                    photo_url: uploadedMediaUrl,
-                    video_url: null,
-                    posted_at: new Date().toISOString()
-                };
 
-                try {
-                    const response = await submitReport(payload);
-                    
-                    statusMsg.style.display = "block";
-                    statusMsg.style.background = "rgba(16, 185, 129, 0.15)";
-                    statusMsg.style.border = "1px solid rgba(16, 185, 129, 0.4)";
-                    statusMsg.style.color = "#10b981";
-                    
-                    statusMsg.innerHTML = `
-                        <strong>✓ Report Submitted Successfully!</strong><br/>
-                        Categorized as <strong>${response.event_type}</strong> | Calculated Trust Score: <strong>${Math.round(response.trust_score)}/100</strong><br/>
-                        Status: <strong>${response.verification_status.toUpperCase()}</strong>
-                    `;
 
-                    setTimeout(() => {
-                        window.location.href = "index.html";
-                    }, 2500);
+        // =========================================================
+        // MEDIA UPLOAD
+        // =========================================================
 
-                } catch (err) {
-                    statusMsg.style.display = "block";
-                    statusMsg.style.background = "rgba(239, 68, 68, 0.15)";
-                    statusMsg.style.border = "1px solid rgba(239, 68, 68, 0.4)";
-                    statusMsg.style.color = "#ef4444";
-                    statusMsg.innerText = `Submission Error: ${err.message}`;
-                    btnSubmit.disabled = false;
-                    btnSubmit.innerText = "Submit Report";
-                }
-            });
-        });
+        async function handleMediaUpload(event) {
+
+            const file =
+                event.target.files[0];
+
+
+            if (!file) {
+
+                return;
+
+            }
+
+
+            const progressDiv =
+                document.getElementById(
+                    "uploadProgress"
+                );
+
+
+            progressDiv.style.display =
+                "block";
+
+
+            progressDiv.innerText =
+                "Uploading media to weather-media bucket...";
+
+
+            try {
+
+                const result =
+                    await uploadMedia(file);
+
+
+                uploadedMediaUrl =
+                    result.url;
+
+
+                progressDiv.innerHTML =
+                    `
+                ✓ Upload complete:
+                <a
+                    href="${result.url}"
+                    target="_blank"
+                    style="color:#38bdf8;"
+                >
+                    View File
+                </a>
+                `;
+
+            }
+
+            catch (error) {
+
+                uploadedMediaUrl = null;
+
+
+                progressDiv.innerHTML =
+                    `
+                <span style="color:#ef4444;">
+                    Upload failed: ${error.message}
+                </span>
+                `;
+
+            }
+
+        }
+
+
+
+        // =========================================================
+        // SUBMIT WEATHER REPORT
+        // =========================================================
+
+        async function submitWeatherReport(event) {
+
+            event.preventDefault();
+
+
+            const btnSubmit =
+                document.getElementById(
+                    "btnSubmitReport"
+                );
+
+
+            const statusMsg =
+                document.getElementById(
+                    "statusMessage"
+                );
+
+
+            // -----------------------------------------------------
+            // Read coordinates
+            // -----------------------------------------------------
+
+            const latitude =
+                parseFloat(
+                    document.getElementById(
+                        "latInput"
+                    ).value
+                );
+
+
+            const longitude =
+                parseFloat(
+                    document.getElementById(
+                        "lngInput"
+                    ).value
+                );
+
+
+            // -----------------------------------------------------
+            // Validate coordinates
+            // -----------------------------------------------------
+
+            if (
+                Number.isNaN(latitude) ||
+                Number.isNaN(longitude)
+            ) {
+
+                showError(
+                    "Please provide a valid latitude and longitude."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                latitude < -90 ||
+                latitude > 90
+            ) {
+
+                showError(
+                    "Latitude must be between -90 and 90."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                longitude < -180 ||
+                longitude > 180
+            ) {
+
+                showError(
+                    "Longitude must be between -180 and 180."
+                );
+
+                return;
+
+            }
+
+
+            // -----------------------------------------------------
+            // Disable button
+            // -----------------------------------------------------
+
+            btnSubmit.disabled = true;
+
+            btnSubmit.innerText =
+                "Processing ML Pipeline...";
+
+
+            // -----------------------------------------------------
+            // Create payload
+            // -----------------------------------------------------
+
+            const payload = {
+
+                source: "citizen",
+
+                text_content:
+                    document.getElementById(
+                        "textContent"
+                    ).value,
+
+                city:
+                    document.getElementById(
+                        "cityInput"
+                    ).value,
+
+                state:
+                    document.getElementById(
+                        "stateInput"
+                    ).value,
+
+                latitude: latitude,
+
+                longitude: longitude,
+
+                photo_url:
+                    uploadedMediaUrl,
+
+                video_url: null,
+
+                posted_at:
+                    new Date().toISOString()
+
+            };
+
+
+            console.log(
+                "Submitting report:",
+                payload
+            );
+
+
+            try {
+
+                const response =
+                    await submitReport(
+                        payload
+                    );
+
+
+                // -------------------------------------------------
+                // Success message
+                // -------------------------------------------------
+
+                statusMsg.style.display =
+                    "block";
+
+                statusMsg.style.background =
+                    "rgba(16, 185, 129, 0.15)";
+
+                statusMsg.style.border =
+                    "1px solid rgba(16, 185, 129, 0.4)";
+
+                statusMsg.style.color =
+                    "#10b981";
+
+
+                statusMsg.innerHTML =
+                    `
+                <strong>
+                    ✓ Report Submitted Successfully!
+                </strong>
+                <br><br>
+
+                Categorized as:
+                <strong>
+                    ${response.event_type || "Weather Event"}
+                </strong>
+
+                <br>
+
+                Calculated Trust Score:
+                <strong>
+                    ${Math.round(response.trust_score || 0)}/100
+                </strong>
+
+                <br>
+
+                Status:
+                <strong>
+                    ${(response.verification_status || "pending").toUpperCase()}
+                </strong>
+                `;
+
+
+                // Redirect
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "index.html";
+
+                }, 2500);
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Submission error:",
+                    error
+                );
+
+
+                showError(
+                    `Submission Error: ${error.message}`
+                );
+
+
+                btnSubmit.disabled =
+                    false;
+
+                btnSubmit.innerText =
+                    "Submit Report";
+
+            }
+
+        }
+
+
+
+        // =========================================================
+        // ERROR MESSAGE
+        // =========================================================
+
+        function showError(message) {
+
+            const statusMsg =
+                document.getElementById(
+                    "statusMessage"
+                );
+
+
+            statusMsg.style.display =
+                "block";
+
+
+            statusMsg.style.background =
+                "rgba(239, 68, 68, 0.15)";
+
+
+            statusMsg.style.border =
+                "1px solid rgba(239, 68, 68, 0.4)";
+
+
+            statusMsg.style.color =
+                "#ef4444";
+
+
+            statusMsg.innerText =
+                message;
+
+        }
+
     </script>
 </body>
+
 </html>
