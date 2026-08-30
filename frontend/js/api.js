@@ -282,39 +282,34 @@ async function uploadMedia(file) {
 // ============================================================
 
 async function fetchAdminPending() {
+    return await fetchAdminReports("pending");
+}
 
-    const token =
-        localStorage.getItem("admin_jwt");
-
+async function fetchAdminReports(status = "pending") {
+    const token = localStorage.getItem("admin_jwt");
     if (!token) {
-
-        throw new Error(
-            "Admin token not found. Please log in."
-        );
+        throw new Error("Admin token not found. Please log in.");
     }
 
-    const response = await fetch(
-        `${API_BASE}/admin/pending`,
-        {
-            method: "GET",
+    const url = status === "pending"
+        ? `${API_BASE}/admin/pending`
+        : `${API_BASE}/admin/reports?status=${status}`;
 
-            headers: {
-                "Authorization": `Bearer ${token}`
-            },
-
-            cache: "no-store"
-        }
-    );
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}`
+        },
+        cache: "no-store"
+    });
 
     if (!response.ok) {
-
-        throw new Error(
-            `Failed to fetch pending reports: ${response.statusText}`
-        );
+        throw new Error(`Failed to fetch reports: ${response.statusText}`);
     }
 
     return await response.json();
 }
+
 
 
 // ============================================================

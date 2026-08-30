@@ -995,8 +995,21 @@ function updateMapMarkers(reports) {
             marker
         );
 
+        // Auto-center and open popup if requested via URL query params
+        const urlParams = new URLSearchParams(window.location.search);
+        const highlightId = urlParams.get("highlight");
+        if (highlightId && String(report.id) === String(highlightId)) {
+            setTimeout(() => {
+                if (weatherMap) {
+                    weatherMap.setView([Number(report.latitude), Number(report.longitude)], 10);
+                    marker.openPopup();
+                }
+            }, 400);
+        }
+
     });
 }
+
 
 
 // ============================================================
