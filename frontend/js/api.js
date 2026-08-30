@@ -95,8 +95,26 @@ async function rejectReport(reportId) {
             "Authorization": `Bearer ${token}`
         }
     });
+
     if (!response.ok) {
         throw new Error(`Rejection failed: ${response.statusText}`);
     }
+
+    return await response.json();
+}
+
+async function fetchWeather(city) {
+    const response = await fetch(
+        `${API_BASE}/weather?city=${encodeURIComponent(city)}`
+    );
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+
+        throw new Error(
+            error.detail || "Unable to fetch weather data"
+        );
+    }
+
     return await response.json();
 }

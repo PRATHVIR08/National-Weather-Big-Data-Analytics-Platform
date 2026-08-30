@@ -1,235 +1,1640 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>National Weather Analytics Platform — Live India Weather Monitoring</title>
-    <meta name="description" content="Real-time ingestion, ML verification, categorization, and spatial visualization of weather-related events across India.">
-    
+
+    <title>
+        National Weather Analytics Platform — Live India Weather Monitoring
+    </title>
+
+    <meta
+        name="description"
+        content="Real-time ingestion, ML verification, categorization, and spatial visualization of weather-related events across India."
+    >
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-    
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    
-    <!-- Application Stylesheet -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+    >
+
+    <!-- Application CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
-    <!-- Header Navigation -->
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
     <header class="navbar">
+
         <a href="index.html" class="brand">
             <div class="brand-icon">🌩️</div>
-            <span class="brand-title">National Weather Analytics</span>
+            <span class="brand-title">
+                National Weather Analytics
+            </span>
         </a>
+
         <ul class="nav-links">
-            <li><a href="index.html" class="nav-link active">Live Dashboard</a></li>
-            <li><a href="report.html" class="nav-link">Report Incident</a></li>
-            <li><a href="admin.html" class="nav-link">Admin Portal</a></li>
+
+            <li>
+                <a href="index.html" class="nav-link active">
+                    Live Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="report.html" class="nav-link">
+                    Report Incident
+                </a>
+            </li>
+
+            <li>
+                <a href="admin.html" class="nav-link">
+                    Admin Portal
+                </a>
+            </li>
+
         </ul>
+
     </header>
 
-    <!-- Main App Container -->
+
+    <!-- =========================================================
+         MAIN DASHBOARD
+    ========================================================== -->
+
     <main class="dashboard-container">
-        
-        <!-- Key Metrics Cards -->
+
+
+        <!-- =====================================================
+             METRICS
+        ====================================================== -->
+
         <section class="metrics-row">
+
             <div class="glass-card metric-card">
-                <div class="metric-icon">📊</div>
+
+                <div class="metric-icon">
+                    📊
+                </div>
+
                 <div class="metric-data">
+
                     <h4>Total Reports</h4>
-                    <div class="value" id="metricTotal">0</div>
+
+                    <div
+                        class="value"
+                        id="metricTotal"
+                    >
+                        0
+                    </div>
+
                 </div>
+
             </div>
 
+
             <div class="glass-card metric-card">
-                <div class="metric-icon">✅</div>
+
+                <div class="metric-icon">
+                    ✅
+                </div>
+
                 <div class="metric-data">
+
                     <h4>Verified Reports</h4>
-                    <div class="value" id="metricVerified">0</div>
+
+                    <div
+                        class="value"
+                        id="metricVerified"
+                    >
+                        0
+                    </div>
+
                 </div>
+
             </div>
 
+
             <div class="glass-card metric-card">
-                <div class="metric-icon">⚡</div>
+
+                <div class="metric-icon">
+                    ⚡
+                </div>
+
                 <div class="metric-data">
+
                     <h4>Severe Incidents</h4>
-                    <div class="value" id="metricSevere">0</div>
+
+                    <div
+                        class="value"
+                        id="metricSevere"
+                    >
+                        0
+                    </div>
+
                 </div>
+
             </div>
 
+
             <div class="glass-card metric-card">
-                <div class="metric-icon">📍</div>
-                <div class="metric-data">
-                    <h4>Active Regions</h4>
-                    <div class="value" id="metricCities">0</div>
+
+                <div class="metric-icon">
+                    📍
                 </div>
+
+                <div class="metric-data">
+
+                    <h4>Active Regions</h4>
+
+                    <div
+                        class="value"
+                        id="metricCities"
+                    >
+                        0
+                    </div>
+
+                </div>
+
             </div>
+
         </section>
 
-        <!-- Sidebar Filter Controls -->
+
+        <!-- =====================================================
+             SIDEBAR FILTERS
+        ====================================================== -->
+
         <aside class="glass-card sidebar">
-            <h3>Filters & Scope</h3>
-            
+
+            <h3>
+                Filters & Scope
+            </h3>
+
+
             <div class="filter-group">
-                <label for="filterEvent">Event Category</label>
-                <select id="filterEvent" class="form-control">
-                    <option value="">All Weather Events</option>
-                    <option value="Flood">Flood / Waterlogging</option>
-                    <option value="Heatwave">Heatwave</option>
-                    <option value="Thunderstorm">Thunderstorm / Lightning</option>
-                    <option value="Fog">Fog / Visibility</option>
-                    <option value="DustStorm">Dust Storm</option>
-                    <option value="StrongWind">Strong Wind / Gale</option>
-                    <option value="Other">Other</option>
+
+                <label for="filterEvent">
+                    Event Category
+                </label>
+
+                <select
+                    id="filterEvent"
+                    class="form-control"
+                >
+
+                    <option value="">
+                        All Weather Events
+                    </option>
+
+                    <option value="Flood">
+                        Flood / Waterlogging
+                    </option>
+
+                    <option value="Heatwave">
+                        Heatwave
+                    </option>
+
+                    <option value="Thunderstorm">
+                        Thunderstorm / Lightning
+                    </option>
+
+                    <option value="Fog">
+                        Fog / Visibility
+                    </option>
+
+                    <option value="DustStorm">
+                        Dust Storm
+                    </option>
+
+                    <option value="StrongWind">
+                        Strong Wind / Gale
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
                 </select>
+
             </div>
 
-            <div class="filter-group">
-                <label for="filterCity">City / Location</label>
-                <input type="text" id="filterCity" class="form-control" placeholder="e.g. Mumbai, Delhi...">
-            </div>
 
             <div class="filter-group">
-                <label for="filterState">State</label>
-                <input type="text" id="filterState" class="form-control" placeholder="e.g. Maharashtra...">
+
+                <label for="filterCity">
+                    City / Location
+                </label>
+
+                <input
+                    type="text"
+                    id="filterCity"
+                    class="form-control"
+                    placeholder="e.g. Mumbai, Delhi..."
+                >
+
             </div>
 
+
             <div class="filter-group">
-                <label for="filterStatus">Status</label>
-                <select id="filterStatus" class="form-control">
-                    <option value="verified" selected>Verified Only</option>
-                    <option value="pending">Pending Review</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="">All Statuses</option>
+
+                <label for="filterState">
+                    State
+                </label>
+
+                <input
+                    type="text"
+                    id="filterState"
+                    class="form-control"
+                    placeholder="e.g. Maharashtra..."
+                >
+
+            </div>
+
+
+            <div class="filter-group">
+
+                <label for="filterStatus">
+                    Status
+                </label>
+
+                <select
+                    id="filterStatus"
+                    class="form-control"
+                >
+
+                    <option value="verified" selected>
+                        Verified Only
+                    </option>
+
+                    <option value="pending">
+                        Pending Review
+                    </option>
+
+                    <option value="rejected">
+                        Rejected
+                    </option>
+
+                    <option value="">
+                        All Statuses
+                    </option>
+
                 </select>
+
             </div>
+
 
             <div class="filter-group">
-                <label for="filterFrom">Date From</label>
-                <input type="date" id="filterFrom" class="form-control">
+
+                <label for="filterFrom">
+                    Date From
+                </label>
+
+                <input
+                    type="date"
+                    id="filterFrom"
+                    class="form-control"
+                >
+
             </div>
+
 
             <div class="filter-group">
-                <label for="filterTo">Date To</label>
-                <input type="date" id="filterTo" class="form-control">
+
+                <label for="filterTo">
+                    Date To
+                </label>
+
+                <input
+                    type="date"
+                    id="filterTo"
+                    class="form-control"
+                >
+
             </div>
 
-            <button id="btnApplyFilters" class="btn-primary" style="margin-top: 0.5rem; justify-content: center;">
+
+            <button
+                id="btnApplyFilters"
+                class="btn-primary"
+                style="margin-top:0.5rem; justify-content:center;"
+            >
                 Apply Filters
             </button>
-            <button id="btnResetFilters" class="form-control" style="cursor:pointer; text-align:center;">
+
+
+            <button
+                id="btnResetFilters"
+                class="form-control"
+                style="cursor:pointer; text-align:center;"
+            >
                 Reset Filters
             </button>
+
         </aside>
 
-        <!-- Main Workspace: Map & Charts -->
+
+        <!-- =====================================================
+             MAIN CONTENT
+        ====================================================== -->
+
         <section class="main-content">
-            
-            <!-- Map View Card -->
-            <div class="glass-card map-card">
-                <div id="map"></div>
+
+
+            <!-- =================================================
+                 LIVE WEATHER
+            ================================================== -->
+
+            <div class="glass-card weather-card">
+
+                <div class="weather-header">
+
+                    <div>
+
+                        <h2>
+                            🌤️ Live Weather
+                        </h2>
+
+                        <p>
+                            Search for current weather conditions by city
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CITY SEARCH -->
+
+                <div class="weather-search">
+
+                    <input
+                        type="text"
+                        id="weatherCity"
+                        class="form-control"
+                        placeholder="Enter city name, e.g. Mumbai"
+                        autocomplete="off"
+                    >
+
+                    <button
+                        id="btnWeatherSearch"
+                        class="btn-primary"
+                    >
+                        Search
+                    </button>
+
+                </div>
+
+
+                <!-- LOADING -->
+
+                <div
+                    id="weatherLoading"
+                    class="weather-message"
+                    style="display:none;"
+                >
+                    Loading weather...
+                </div>
+
+
+                <!-- ERROR -->
+
+                <div
+                    id="weatherError"
+                    class="weather-message weather-error"
+                    style="display:none;"
+                >
+                </div>
+
+
+                <!-- WEATHER RESULT -->
+
+                <div
+                    id="weatherResult"
+                    class="weather-result"
+                    style="display:none;"
+                >
+
+
+                    <!-- LOCATION -->
+
+                    <div class="weather-location">
+
+                        <h3 id="weatherLocation">
+                            --
+                        </h3>
+
+                        <span id="weatherObserved">
+                        </span>
+
+                    </div>
+
+
+                    <!-- MAIN WEATHER -->
+
+                    <div class="weather-main">
+
+                        <div class="temperature">
+
+                            <span id="weatherTemperature">
+                                --
+                            </span>
+
+                            °C
+
+                        </div>
+
+
+                        <div>
+
+                            <div
+                                id="weatherCondition"
+                                class="weather-condition"
+                            >
+                                --
+                            </div>
+
+
+                            <div class="weather-feels">
+
+                                Feels like
+
+                                <span id="weatherFeelsLike">
+                                    --
+                                </span>
+
+                                °C
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- WEATHER DETAILS -->
+
+                    <div class="weather-details">
+
+
+                        <div class="weather-detail">
+
+                            <span>💧</span>
+
+                            <div>
+
+                                <small>
+                                    Humidity
+                                </small>
+
+                                <strong id="weatherHumidity">
+                                    --%
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="weather-detail">
+
+                            <span>💨</span>
+
+                            <div>
+
+                                <small>
+                                    Wind Speed
+                                </small>
+
+                                <strong id="weatherWind">
+                                    -- km/h
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="weather-detail">
+
+                            <span>🌧️</span>
+
+                            <div>
+
+                                <small>
+                                    Precipitation
+                                </small>
+
+                                <strong id="weatherRain">
+                                    -- mm
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="weather-detail">
+
+                            <span>☁️</span>
+
+                            <div>
+
+                                <small>
+                                    Cloud Cover
+                                </small>
+
+                                <strong id="weatherCloud">
+                                    --%
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="weather-detail">
+
+                            <span>🎈</span>
+
+                            <div>
+
+                                <small>
+                                    Pressure
+                                </small>
+
+                                <strong id="weatherPressure">
+                                    -- hPa
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="weather-detail">
+
+                            <span>🌬️</span>
+
+                            <div>
+
+                                <small>
+                                    Wind Gust
+                                </small>
+
+                                <strong id="weatherGust">
+                                    -- km/h
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <!-- Charts Row Grid -->
+
+            <!-- =================================================
+                 MAP
+            ================================================== -->
+
+            <div class="glass-card map-card">
+
+                <div id="map"></div>
+
+            </div>
+
+
+            <!-- =================================================
+                 CHARTS
+            ================================================== -->
+
             <div class="charts-grid">
-                <div class="glass-card chart-card">
-                    <h3>Weather Incidents by Category</h3>
-                    <div class="chart-container">
-                        <canvas id="eventTypeChart"></canvas>
-                    </div>
-                </div>
+
 
                 <div class="glass-card chart-card">
-                    <h3>Regional Distribution by State</h3>
+
+                    <h3>
+                        Weather Incidents by Category
+                    </h3>
+
                     <div class="chart-container">
-                        <canvas id="statePieChart"></canvas>
+
+                        <canvas id="eventTypeChart"></canvas>
+
                     </div>
+
                 </div>
+
+
+                <div class="glass-card chart-card">
+
+                    <h3>
+                        Regional Distribution by State
+                    </h3>
+
+                    <div class="chart-container">
+
+                        <canvas id="statePieChart"></canvas>
+
+                    </div>
+
+                </div>
+
+
             </div>
 
         </section>
 
     </main>
 
-    <!-- Dependencies -->
-    <!-- Supabase JS CDN -->
+
+    <!-- =========================================================
+         LIBRARIES
+    ========================================================== -->
+
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Leaflet JS CDN -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <!-- Chart.js CDN -->
+
+    <!-- Leaflet -->
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+    ></script>
+
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Application Modules -->
+
+    <!-- =========================================================
+         YOUR APPLICATION JS
+    ========================================================== -->
+
     <script src="js/supabase-config.js"></script>
+
     <script src="js/api.js"></script>
+
     <script src="js/map.js"></script>
+
     <script src="js/charts.js"></script>
+
     <script src="js/realtime.js"></script>
 
-    <!-- Main Controller Script -->
+
+    <!-- =========================================================
+         DASHBOARD CONTROLLER
+    ========================================================== -->
+
     <script>
+
         let currentReportsData = [];
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            initWeatherMap("map");
-            initCharts();
 
-            // Load initial dataset
-            await loadDashboardData();
+        /* =====================================================
+           LOAD DASHBOARD DATA
 
-            // Setup Realtime Listener
-            initRealtimeSubscription(async (newReport) => {
-                console.log("Realtime notification received. Refreshing dashboard...");
-                await loadDashboardData();
-            });
+           This was missing in your previous index.html.
+           That is why you were getting:
 
-            // Filter Event Listeners
-            document.getElementById("btnApplyFilters").addEventListener("click", loadDashboardData);
-            document.getElementById("btnResetFilters").addEventListener("click", () => {
-                document.getElementById("filterEvent").value = "";
-                document.getElementById("filterCity").value = "";
-                document.getElementById("filterState").value = "";
-                document.getElementById("filterStatus").value = "verified";
-                document.getElementById("filterFrom").value = "";
-                document.getElementById("filterTo").value = "";
-                loadDashboardData();
-            });
-        });
+           ReferenceError:
+           loadDashboardData is not defined
+        ====================================================== */
 
         async function loadDashboardData() {
+
             try {
+
+                console.log("Loading dashboard data...");
+
+
+                /* ---------------------------------------------
+                   Read filters
+                --------------------------------------------- */
+
                 const filters = {
-                    event_type: document.getElementById("filterEvent").value,
-                    city: document.getElementById("filterCity").value,
-                    state: document.getElementById("filterState").value,
-                    verification_status: document.getElementById("filterStatus").value,
-                    date_from: document.getElementById("filterFrom").value,
-                    date_to: document.getElementById("filterTo").value
+
+                    event_type:
+                        document.getElementById("filterEvent").value,
+
+                    city:
+                        document.getElementById("filterCity").value.trim(),
+
+                    state:
+                        document.getElementById("filterState").value.trim(),
+
+                    verification_status:
+                        document.getElementById("filterStatus").value,
+
+                    date_from:
+                        document.getElementById("filterFrom").value,
+
+                    date_to:
+                        document.getElementById("filterTo").value
+
                 };
 
-                const reports = await fetchReports(filters);
-                currentReportsData = reports;
 
-                // Update Map Markers & Charts
-                updateMapMarkers(reports);
+                /* ---------------------------------------------
+                   Get reports from backend
+                --------------------------------------------- */
+
+                const data = await fetchReports(filters);
+
+
+                /*
+                 Backend may return either:
+
+                 [
+                    {...},
+                    {...}
+                 ]
+
+                 OR
+
+                 {
+                    reports: [...]
+                 }
+                */
+
+                if (Array.isArray(data)) {
+
+                    currentReportsData = data;
+
+                } else if (Array.isArray(data.reports)) {
+
+                    currentReportsData = data.reports;
+
+                } else if (Array.isArray(data.data)) {
+
+                    currentReportsData = data.data;
+
+                } else {
+
+                    currentReportsData = [];
+
+                }
+
+
+                console.log(
+                    "Reports loaded:",
+                    currentReportsData.length
+                );
+
+
+                /* ---------------------------------------------
+                   Update metrics
+                --------------------------------------------- */
+
+                updateDashboardMetrics(currentReportsData);
+
+
+                /* ---------------------------------------------
+                   Update charts if functions exist
+                --------------------------------------------- */
+
+                updateDashboardCharts(currentReportsData);
+
+
+                /* ---------------------------------------------
+                   Update map if functions exist
+                --------------------------------------------- */
+
+                updateDashboardMap(currentReportsData);
+
+
+            } catch (error) {
+
+                console.error(
+                    "Dashboard loading failed:",
+                    error
+                );
+
+                /*
+                 Do not break the entire page if reports
+                 are unavailable.
+                */
+
+                currentReportsData = [];
+
+                updateDashboardMetrics([]);
+
+            }
+
+        }
+
+
+        /* =====================================================
+           UPDATE METRIC CARDS
+        ====================================================== */
+
+        function updateDashboardMetrics(reports) {
+
+            const total =
+                reports.length;
+
+
+            const verified =
+                reports.filter(report =>
+                    String(
+                        report.verification_status ||
+                        report.status ||
+                        ""
+                    ).toLowerCase() === "verified"
+                ).length;
+
+
+            const severe =
+                reports.filter(report => {
+
+                    const severity =
+                        String(
+                            report.severity ||
+                            report.priority ||
+                            ""
+                        ).toLowerCase();
+
+                    return (
+                        severity === "severe" ||
+                        severity === "high" ||
+                        severity === "critical"
+                    );
+
+                }).length;
+
+
+            const cities =
+                new Set(
+                    reports
+                        .map(report =>
+                            report.city ||
+                            report.location ||
+                            report.district
+                        )
+                        .filter(Boolean)
+                        .map(value =>
+                            String(value).toLowerCase()
+                        )
+                ).size;
+
+
+            document.getElementById(
+                "metricTotal"
+            ).innerText = total;
+
+
+            document.getElementById(
+                "metricVerified"
+            ).innerText = verified;
+
+
+            document.getElementById(
+                "metricSevere"
+            ).innerText = severe;
+
+
+            document.getElementById(
+                "metricCities"
+            ).innerText = cities;
+
+        }
+
+
+        /* =====================================================
+           UPDATE CHARTS
+        ====================================================== */
+
+        function updateDashboardCharts(reports) {
+
+            /*
+             If your charts.js already has one of these functions,
+             use it.
+
+             We check before calling so the dashboard does not
+             crash if the function has a different name.
+            */
+
+            if (
+                typeof updateCharts === "function"
+            ) {
+
                 updateCharts(reports);
 
-                // Update Metrics Summary
-                document.getElementById("metricTotal").innerText = reports.length;
-                document.getElementById("metricVerified").innerText = reports.filter(r => r.verification_status === "verified").length;
-                document.getElementById("metricSevere").innerText = reports.filter(r => ["Flood", "Thunderstorm", "Heatwave"].includes(r.event_type)).length;
-                
-                const uniqueCities = new Set(reports.map(r => r.city)).size;
-                document.getElementById("metricCities").innerText = uniqueCities;
+                return;
+
+            }
+
+
+            if (
+                typeof updateChartData === "function"
+            ) {
+
+                updateChartData(reports);
+
+                return;
+
+            }
+
+
+            /*
+             Otherwise create charts directly.
+            */
+
+            createFallbackCharts(reports);
+
+        }
+
+
+        /* =====================================================
+           FALLBACK CHARTS
+        ====================================================== */
+
+        let eventChartInstance = null;
+        let stateChartInstance = null;
+
+
+        function createFallbackCharts(reports) {
+
+            if (
+                typeof Chart === "undefined"
+            ) {
+                return;
+            }
+
+
+            /* ---------------------------------------------
+               Event category counts
+            --------------------------------------------- */
+
+            const eventCounts = {};
+
+
+            reports.forEach(report => {
+
+                const event =
+                    report.event_type ||
+                    report.event ||
+                    report.category ||
+                    "Other";
+
+                eventCounts[event] =
+                    (eventCounts[event] || 0) + 1;
+
+            });
+
+
+            const eventCanvas =
+                document.getElementById(
+                    "eventTypeChart"
+                );
+
+
+            if (eventCanvas) {
+
+                if (eventChartInstance) {
+                    eventChartInstance.destroy();
+                }
+
+
+                eventChartInstance =
+                    new Chart(
+                        eventCanvas,
+                        {
+                            type: "doughnut",
+
+                            data: {
+                                labels:
+                                    Object.keys(eventCounts),
+
+                                datasets: [
+                                    {
+                                        data:
+                                            Object.values(
+                                                eventCounts
+                                            )
+                                    }
+                                ]
+                            },
+
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false
+                            }
+
+                        }
+                    );
+
+            }
+
+
+            /* ---------------------------------------------
+               State counts
+            --------------------------------------------- */
+
+            const stateCounts = {};
+
+
+            reports.forEach(report => {
+
+                const state =
+                    report.state ||
+                    report.location_state ||
+                    "Unknown";
+
+                stateCounts[state] =
+                    (stateCounts[state] || 0) + 1;
+
+            });
+
+
+            const stateCanvas =
+                document.getElementById(
+                    "statePieChart"
+                );
+
+
+            if (stateCanvas) {
+
+                if (stateChartInstance) {
+                    stateChartInstance.destroy();
+                }
+
+
+                stateChartInstance =
+                    new Chart(
+                        stateCanvas,
+                        {
+                            type: "pie",
+
+                            data: {
+                                labels:
+                                    Object.keys(stateCounts),
+
+                                datasets: [
+                                    {
+                                        data:
+                                            Object.values(
+                                                stateCounts
+                                            )
+                                    }
+                                ]
+                            },
+
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false
+                            }
+
+                        }
+                    );
+
+            }
+
+        }
+
+
+        /* =====================================================
+           UPDATE MAP
+        ====================================================== */
+
+        function updateDashboardMap(reports) {
+
+            /*
+             Use your existing map.js functions if available.
+            */
+
+            if (
+                typeof updateMap === "function"
+            ) {
+
+                updateMap(reports);
+
+                return;
+
+            }
+
+
+            if (
+                typeof updateWeatherMap === "function"
+            ) {
+
+                /*
+                 Don't call initWeatherMap again here.
+                 It is initialized only once below.
+                */
+
+                return;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           WEATHER SEARCH
+        ====================================================== */
+
+        async function loadWeather() {
+
+            const cityInput =
+                document.getElementById(
+                    "weatherCity"
+                );
+
+
+            const city =
+                cityInput.value.trim();
+
+
+            const loading =
+                document.getElementById(
+                    "weatherLoading"
+                );
+
+
+            const error =
+                document.getElementById(
+                    "weatherError"
+                );
+
+
+            const result =
+                document.getElementById(
+                    "weatherResult"
+                );
+
+
+            /* ---------------------------------------------
+               Empty city
+            --------------------------------------------- */
+
+            if (!city) {
+
+                error.innerText =
+                    "Please enter a city name.";
+
+                error.style.display =
+                    "block";
+
+                result.style.display =
+                    "none";
+
+                return;
+
+            }
+
+
+            /* ---------------------------------------------
+               Loading state
+            --------------------------------------------- */
+
+            loading.style.display =
+                "block";
+
+            error.style.display =
+                "none";
+
+            result.style.display =
+                "none";
+
+
+            try {
+
+                console.log(
+                    "Fetching weather for:",
+                    city
+                );
+
+
+                /*
+                 fetchWeather() comes from api.js
+                */
+
+                const data =
+                    await fetchWeather(city);
+
+
+                console.log(
+                    "Weather response:",
+                    data
+                );
+
+
+                const weather =
+                    data.weather || {};
+
+
+                const location =
+                    data.location || {};
+
+
+                /* -----------------------------------------
+                   Location
+                ----------------------------------------- */
+
+                document.getElementById(
+                    "weatherLocation"
+                ).innerText =
+                    `${location.city || city}, ${
+                        location.state ||
+                        location.country ||
+                        ""
+                    }`;
+
+
+                /* -----------------------------------------
+                   Updated time
+                ----------------------------------------- */
+
+                document.getElementById(
+                    "weatherObserved"
+                ).innerText =
+                    data.observed_at
+                        ? `Updated: ${data.observed_at}`
+                        : "";
+
+
+                /* -----------------------------------------
+                   Temperature
+                ----------------------------------------- */
+
+                document.getElementById(
+                    "weatherTemperature"
+                ).innerText =
+                    weather.temperature_c ?? "--";
+
+
+                /* -----------------------------------------
+                   Feels like
+                ----------------------------------------- */
+
+                document.getElementById(
+                    "weatherFeelsLike"
+                ).innerText =
+                    weather.feels_like_c ?? "--";
+
+
+                /* -----------------------------------------
+                   Condition
+                ----------------------------------------- */
+
+                document.getElementById(
+                    "weatherCondition"
+                ).innerText =
+                    weather.condition ||
+                    "Unknown";
+
+
+                /* -----------------------------------------
+                   Humidity
+                ----------------------------------------- */
+
+                document.getElementById(
+                    "weatherHumidity"
+                ).innerText =
+                    `${weather.humidity_pct ?? "--"}%`;
+
+
+                /* -----------------------------------------
+                   Wind
+                ----------------------------------------- */
+
+                document.getElementById(
+                    "weatherWind"
+                ).innerText =
+                    `${weather.wind_speed_kmh ?? "--"} km/h`;
+
+
+                /* -----------------------------------------
+                   Rain
+                ----------------------------------------- */
+
+                document.getElementById(
+                    "weatherRain"
+                ).innerText =
+                    `${weather.precipitation_mm ?? "--"} mm`;
+
+
+                /* -----------------------------------------
+                   Cloud
+                ----------------------------------------- */
+
+                document.getElementById(
+                    "weatherCloud"
+                ).innerText =
+                    `${weather.cloud_cover_pct ?? "--"}%`;
+
+
+                /* -----------------------------------------
+                   Pressure
+                ----------------------------------------- */
+
+                document.getElementById(
+                    "weatherPressure"
+                ).innerText =
+                    `${weather.pressure_hpa ?? "--"} hPa`;
+
+
+                /* -----------------------------------------
+                   Wind gust
+                ----------------------------------------- */
+
+                document.getElementById(
+                    "weatherGust"
+                ).innerText =
+                    `${weather.wind_gust_kmh ?? "--"} km/h`;
+
+
+                /* -----------------------------------------
+                   Show result
+                ----------------------------------------- */
+
+                result.style.display =
+                    "block";
+
 
             } catch (err) {
-                console.error("Failed to load dashboard data:", err);
+
+                console.error(
+                    "Weather fetch failed:",
+                    err
+                );
+
+
+                error.innerText =
+                    err.message ||
+                    "Failed to load weather.";
+
+
+                error.style.display =
+                    "block";
+
+
+                result.style.display =
+                    "none";
+
+            } finally {
+
+                loading.style.display =
+                    "none";
+
             }
+
         }
+
+
+        /* =====================================================
+           PAGE INITIALIZATION
+        ====================================================== */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            async () => {
+
+                console.log(
+                    "National Weather Analytics initialized."
+                );
+
+
+                /* ---------------------------------------------
+                   Initialize map
+                --------------------------------------------- */
+
+                if (
+                    typeof initWeatherMap === "function"
+                ) {
+
+                    try {
+
+                        initWeatherMap("map");
+
+                    } catch (error) {
+
+                        console.error(
+                            "Map initialization failed:",
+                            error
+                        );
+
+                    }
+
+                }
+
+
+                /* ---------------------------------------------
+                   Initialize charts
+                --------------------------------------------- */
+
+                if (
+                    typeof initCharts === "function"
+                ) {
+
+                    try {
+
+                        initCharts();
+
+                    } catch (error) {
+
+                        console.error(
+                            "Chart initialization failed:",
+                            error
+                        );
+
+                    }
+
+                }
+
+
+                /* ---------------------------------------------
+                   Load dashboard
+                --------------------------------------------- */
+
+                await loadDashboardData();
+
+
+                /* ---------------------------------------------
+                   Weather search button
+                --------------------------------------------- */
+
+                const weatherButton =
+                    document.getElementById(
+                        "btnWeatherSearch"
+                    );
+
+
+                if (weatherButton) {
+
+                    weatherButton.addEventListener(
+                        "click",
+                        loadWeather
+                    );
+
+                }
+
+
+                /* ---------------------------------------------
+                   Enter key for weather search
+                --------------------------------------------- */
+
+                const weatherInput =
+                    document.getElementById(
+                        "weatherCity"
+                    );
+
+
+                if (weatherInput) {
+
+                    weatherInput.addEventListener(
+                        "keydown",
+                        event => {
+
+                            if (
+                                event.key === "Enter"
+                            ) {
+
+                                loadWeather();
+
+                            }
+
+                        }
+                    );
+
+                }
+
+
+                /* ---------------------------------------------
+                   Apply filters
+                --------------------------------------------- */
+
+                const applyButton =
+                    document.getElementById(
+                        "btnApplyFilters"
+                    );
+
+
+                if (applyButton) {
+
+                    applyButton.addEventListener(
+                        "click",
+                        loadDashboardData
+                    );
+
+                }
+
+
+                /* ---------------------------------------------
+                   Reset filters
+                --------------------------------------------- */
+
+                const resetButton =
+                    document.getElementById(
+                        "btnResetFilters"
+                    );
+
+
+                if (resetButton) {
+
+                    resetButton.addEventListener(
+                        "click",
+                        async () => {
+
+                            document.getElementById(
+                                "filterEvent"
+                            ).value = "";
+
+
+                            document.getElementById(
+                                "filterCity"
+                            ).value = "";
+
+
+                            document.getElementById(
+                                "filterState"
+                            ).value = "";
+
+
+                            document.getElementById(
+                                "filterStatus"
+                            ).value = "verified";
+
+
+                            document.getElementById(
+                                "filterFrom"
+                            ).value = "";
+
+
+                            document.getElementById(
+                                "filterTo"
+                            ).value = "";
+
+
+                            await loadDashboardData();
+
+                        }
+                    );
+
+                }
+
+
+                /* ---------------------------------------------
+                   Realtime subscription
+                --------------------------------------------- */
+
+                if (
+                    typeof initRealtimeSubscription ===
+                    "function"
+                ) {
+
+                    try {
+
+                        initRealtimeSubscription(
+                            async () => {
+
+                                console.log(
+                                    "Realtime update received."
+                                );
+
+                                await loadDashboardData();
+
+                            }
+                        );
+
+                    } catch (error) {
+
+                        console.error(
+                            "Realtime initialization failed:",
+                            error
+                        );
+
+                    }
+
+                }
+
+            }
+        );
+
     </script>
+
 </body>
+
 </html>
