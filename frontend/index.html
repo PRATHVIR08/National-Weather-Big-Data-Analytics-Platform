@@ -1,235 +1,1483 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>National Weather Analytics Platform — Live India Weather Monitoring</title>
-    <meta name="description" content="Real-time ingestion, ML verification, categorization, and spatial visualization of weather-related events across India.">
-    
-    <!-- Google Fonts -->
+
+    <title>
+        National Weather Analytics Platform
+    </title>
+
+    <meta name="description"
+        content="Real-time weather monitoring, incident reporting, verification and spatial visualization across India.">
+
+
+    <!-- =========================================================
+         GOOGLE FONTS
+    ========================================================== -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
+
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    
-    <!-- Application Stylesheet -->
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+
+
+    <!-- =========================================================
+         LEAFLET CSS
+    ========================================================== -->
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+
+
+    <!-- =========================================================
+         APPLICATION CSS
+    ========================================================== -->
+
     <link rel="stylesheet" href="css/style.css">
+
 </head>
+
+
 <body>
 
-    <!-- Header Navigation -->
+
+    <!-- =========================================================
+         NAVBAR
+    ========================================================== -->
+
     <header class="navbar">
+
         <a href="index.html" class="brand">
-            <div class="brand-icon">🌩️</div>
-            <span class="brand-title">National Weather Analytics</span>
+
+            <div class="brand-icon">
+                🌩️
+            </div>
+
+            <span class="brand-title">
+                National Weather Analytics
+            </span>
+
         </a>
+
+
         <ul class="nav-links">
-            <li><a href="index.html" class="nav-link active">Live Dashboard</a></li>
-            <li><a href="report.html" class="nav-link">Report Incident</a></li>
-            <li><a href="admin.html" class="nav-link">Admin Portal</a></li>
+
+            <li>
+
+                <a href="index.html" class="nav-link active">
+                    Live Dashboard
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="report.html" class="nav-link">
+                    Report Incident
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="admin.html" class="nav-link">
+                    Admin Portal
+                </a>
+
+            </li>
+
         </ul>
+
     </header>
 
-    <!-- Main App Container -->
+
+
+    <!-- =========================================================
+         MAIN DASHBOARD
+    ========================================================== -->
+
     <main class="dashboard-container">
-        
-        <!-- Key Metrics Cards -->
+
+
+        <!-- =====================================================
+             METRIC CARDS
+        ====================================================== -->
+
         <section class="metrics-row">
-            <div class="glass-card metric-card">
-                <div class="metric-icon">📊</div>
-                <div class="metric-data">
-                    <h4>Total Reports</h4>
-                    <div class="value" id="metricTotal">0</div>
-                </div>
-            </div>
+
+
+            <!-- TOTAL REPORTS -->
 
             <div class="glass-card metric-card">
-                <div class="metric-icon">✅</div>
-                <div class="metric-data">
-                    <h4>Verified Reports</h4>
-                    <div class="value" id="metricVerified">0</div>
+
+                <div class="metric-icon">
+                    📊
                 </div>
+
+                <div class="metric-data">
+
+                    <h4>
+                        Total Reports
+                    </h4>
+
+                    <div class="value" id="metricTotal">
+                        0
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="glass-card metric-card">
-                <div class="metric-icon">⚡</div>
-                <div class="metric-data">
-                    <h4>Severe Incidents</h4>
-                    <div class="value" id="metricSevere">0</div>
-                </div>
-            </div>
+
+
+            <!-- VERIFIED REPORTS -->
 
             <div class="glass-card metric-card">
-                <div class="metric-icon">📍</div>
-                <div class="metric-data">
-                    <h4>Active Regions</h4>
-                    <div class="value" id="metricCities">0</div>
+
+                <div class="metric-icon">
+                    ✅
                 </div>
+
+                <div class="metric-data">
+
+                    <h4>
+                        Verified Reports
+                    </h4>
+
+                    <div class="value" id="metricVerified">
+                        0
+                    </div>
+
+                </div>
+
             </div>
+
+
+
+            <!-- SEVERE INCIDENTS -->
+
+            <div class="glass-card metric-card">
+
+                <div class="metric-icon">
+                    ⚡
+                </div>
+
+                <div class="metric-data">
+
+                    <h4>
+                        Severe Incidents
+                    </h4>
+
+                    <div class="value" id="metricSevere">
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ACTIVE REGIONS -->
+
+            <div class="glass-card metric-card">
+
+                <div class="metric-icon">
+                    📍
+                </div>
+
+                <div class="metric-data">
+
+                    <h4>
+                        Active Regions
+                    </h4>
+
+                    <div class="value" id="metricCities">
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+
         </section>
 
-        <!-- Sidebar Filter Controls -->
+
+
+        <!-- =====================================================
+             FILTER SIDEBAR
+        ====================================================== -->
+
         <aside class="glass-card sidebar">
-            <h3>Filters & Scope</h3>
-            
+
+
+            <h3>
+                Filters & Scope
+            </h3>
+
+
+            <!-- EVENT CATEGORY -->
+
             <div class="filter-group">
-                <label for="filterEvent">Event Category</label>
+
+                <label for="filterEvent">
+                    Event Category
+                </label>
+
                 <select id="filterEvent" class="form-control">
-                    <option value="">All Weather Events</option>
-                    <option value="Flood">Flood / Waterlogging</option>
-                    <option value="Heatwave">Heatwave</option>
-                    <option value="Thunderstorm">Thunderstorm / Lightning</option>
-                    <option value="Fog">Fog / Visibility</option>
-                    <option value="DustStorm">Dust Storm</option>
-                    <option value="StrongWind">Strong Wind / Gale</option>
-                    <option value="Other">Other</option>
+
+                    <option value="">
+                        All Weather Events
+                    </option>
+
+                    <option value="Flood">
+                        Flood / Waterlogging
+                    </option>
+
+                    <option value="Heatwave">
+                        Heatwave
+                    </option>
+
+                    <option value="Thunderstorm">
+                        Thunderstorm / Lightning
+                    </option>
+
+                    <option value="Fog">
+                        Fog / Visibility
+                    </option>
+
+                    <option value="DustStorm">
+                        Dust Storm
+                    </option>
+
+                    <option value="StrongWind">
+                        Strong Wind / Gale
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
                 </select>
+
             </div>
 
+
+
+            <!-- CITY -->
+
             <div class="filter-group">
-                <label for="filterCity">City / Location</label>
+
+                <label for="filterCity">
+                    City / Location
+                </label>
+
                 <input type="text" id="filterCity" class="form-control" placeholder="e.g. Mumbai, Delhi...">
+
             </div>
 
+
+
+            <!-- STATE -->
+
             <div class="filter-group">
-                <label for="filterState">State</label>
+
+                <label for="filterState">
+                    State
+                </label>
+
                 <input type="text" id="filterState" class="form-control" placeholder="e.g. Maharashtra...">
+
             </div>
 
+
+
+            <!-- STATUS -->
+
             <div class="filter-group">
-                <label for="filterStatus">Status</label>
+
+                <label for="filterStatus">
+                    Status
+                </label>
+
                 <select id="filterStatus" class="form-control">
-                    <option value="verified" selected>Verified Only</option>
-                    <option value="pending">Pending Review</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="">All Statuses</option>
+
+                    <option value="verified" selected>
+                        Verified Only
+                    </option>
+
+                    <option value="pending">
+                        Pending Review
+                    </option>
+
+                    <option value="rejected">
+                        Rejected
+                    </option>
+
+                    <option value="">
+                        All Statuses
+                    </option>
+
                 </select>
+
             </div>
 
+
+
+            <!-- DATE FROM -->
+
             <div class="filter-group">
-                <label for="filterFrom">Date From</label>
+
+                <label for="filterFrom">
+                    Date From
+                </label>
+
                 <input type="date" id="filterFrom" class="form-control">
+
             </div>
+
+
+
+            <!-- DATE TO -->
 
             <div class="filter-group">
-                <label for="filterTo">Date To</label>
+
+                <label for="filterTo">
+                    Date To
+                </label>
+
                 <input type="date" id="filterTo" class="form-control">
+
             </div>
 
-            <button id="btnApplyFilters" class="btn-primary" style="margin-top: 0.5rem; justify-content: center;">
+
+
+            <!-- APPLY FILTERS -->
+
+            <button id="btnApplyFilters" class="btn-primary" style="
+                    margin-top:0.5rem;
+                    justify-content:center;
+                ">
                 Apply Filters
             </button>
-            <button id="btnResetFilters" class="form-control" style="cursor:pointer; text-align:center;">
+
+
+
+            <!-- RESET FILTERS -->
+
+            <button id="btnResetFilters" class="form-control" style="
+                    cursor:pointer;
+                    text-align:center;
+                ">
                 Reset Filters
             </button>
+
+
         </aside>
 
-        <!-- Main Workspace: Map & Charts -->
+
+
+        <!-- =====================================================
+             MAIN CONTENT
+        ====================================================== -->
+
         <section class="main-content">
-            
-            <!-- Map View Card -->
+
+
+            <!-- =================================================
+                 LIVE WEATHER STATUS
+            ================================================== -->
+
+            <div class="glass-card" style="
+                    padding:0.9rem 1.2rem;
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    gap:1rem;
+                    flex-wrap:wrap;
+                ">
+
+
+                <div>
+
+                    <strong style="
+                            font-size:1.05rem;
+                        ">
+                        🌐 Live India Weather
+                    </strong>
+
+
+                    <span id="weatherStatus" style="
+                            margin-left:0.75rem;
+                            color:#f59e0b;
+                            font-size:0.85rem;
+                            font-weight:600;
+                        ">
+                        ● Connecting...
+                    </span>
+
+                </div>
+
+
+                <div id="weatherLastUpdated" style="
+                        color:#9ca3af;
+                        font-size:0.8rem;
+                    ">
+                    Last updated: —
+                </div>
+
+
+            </div>
+
+            <div class="live-weather-metrics">
+
+                <div class="glass-card live-metric-card">
+
+                    <div class="live-metric-icon">
+                        🌡️
+                    </div>
+
+                    <div>
+                        <span>Average Temperature</span>
+                        <strong id="liveAvgTemp">-- °C</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="glass-card live-metric-card">
+
+                    <div class="live-metric-icon">
+                        🔥
+                    </div>
+
+                    <div>
+                        <span>Highest Temperature</span>
+                        <strong id="liveMaxTemp">-- °C</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="glass-card live-metric-card">
+
+                    <div class="live-metric-icon">
+                        💧
+                    </div>
+
+                    <div>
+                        <span>Average Humidity</span>
+                        <strong id="liveAvgHumidity">-- %</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="glass-card live-metric-card">
+
+                    <div class="live-metric-icon">
+                        💨
+                    </div>
+
+                    <div>
+                        <span>Maximum Wind</span>
+                        <strong id="liveMaxWind">-- km/h</strong>
+                    </div>
+
+                </div>
+
+            </div>
+            <section class="metrics-row">
+
+                <div class="glass-card metric-card">
+                    <div class="metric-icon">🌡️</div>
+                    <div class="metric-data">
+                        <h4>Avg Temperature</h4>
+                        <div class="value" id="metricAvgTemp">—</div>
+                    </div>
+                </div>
+
+                <div class="glass-card metric-card">
+                    <div class="metric-icon">🔥</div>
+                    <div class="metric-data">
+                        <h4>Maximum Temperature</h4>
+                        <div class="value" id="metricMaxTemp">—</div>
+                    </div>
+                </div>
+
+                <div class="glass-card metric-card">
+                    <div class="metric-icon">💧</div>
+                    <div class="metric-data">
+                        <h4>Avg Humidity</h4>
+                        <div class="value" id="metricHumidity">—</div>
+                    </div>
+                </div>
+
+                <div class="glass-card metric-card">
+                    <div class="metric-icon">💨</div>
+                    <div class="metric-data">
+                        <h4>Avg Wind Speed</h4>
+                        <div class="value" id="metricWind">—</div>
+                    </div>
+                </div>
+
+                <div class="glass-card metric-card">
+                    <div class="metric-icon">🌧️</div>
+                    <div class="metric-data">
+                        <h4>Total Rainfall</h4>
+                        <div class="value" id="metricRain">—</div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- =================================================
+                 MAP
+            ================================================== -->
+
             <div class="glass-card map-card">
+
                 <div id="map"></div>
+
             </div>
 
-            <!-- Charts Row Grid -->
+
+
+            <!-- =================================================
+                 CHARTS
+            ================================================== -->
+
             <div class="charts-grid">
-                <div class="glass-card chart-card">
-                    <h3>Weather Incidents by Category</h3>
-                    <div class="chart-container">
-                        <canvas id="eventTypeChart"></canvas>
-                    </div>
-                </div>
+
+
+                <!-- EVENT CATEGORY CHART -->
 
                 <div class="glass-card chart-card">
-                    <h3>Regional Distribution by State</h3>
+
+                    <h3>
+                        Weather Incidents by Category
+                    </h3>
+
                     <div class="chart-container">
-                        <canvas id="statePieChart"></canvas>
+
+                        <canvas id="eventTypeChart"></canvas>
+
                     </div>
+
                 </div>
+
+
+
+                <!-- STATE DISTRIBUTION CHART -->
+
+                <div class="glass-card chart-card">
+
+                    <h3>
+                        Regional Distribution by State
+                    </h3>
+
+                    <div class="chart-container">
+
+                        <canvas id="statePieChart"></canvas>
+
+                    </div>
+
+                </div>
+
+
             </div>
+
 
         </section>
+
 
     </main>
 
-    <!-- Dependencies -->
-    <!-- Supabase JS CDN -->
+
+
+    <!-- =========================================================
+         JAVASCRIPT DEPENDENCIES
+    ========================================================== -->
+
+
+    <!-- SUPABASE -->
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Leaflet JS CDN -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <!-- Chart.js CDN -->
+
+
+    <!-- LEAFLET -->
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+
+    <!-- CHART.JS -->
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Application Modules -->
+
+
+    <!-- =========================================================
+         APPLICATION FILES
+    ========================================================== -->
+
+
+    <!-- Supabase Configuration -->
+
     <script src="js/supabase-config.js"></script>
+
+
+    <!-- API -->
+
     <script src="js/api.js"></script>
+
+
+    <!-- MAP -->
+
     <script src="js/map.js"></script>
+
+
+    <!-- CHARTS -->
+
     <script src="js/charts.js"></script>
+
+
+    <!-- REALTIME -->
+
     <script src="js/realtime.js"></script>
 
-    <!-- Main Controller Script -->
+
+
+    <!-- =========================================================
+         DASHBOARD CONTROLLER
+    ========================================================== -->
+
     <script>
+
         let currentReportsData = [];
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            initWeatherMap("map");
-            initCharts();
+        let dashboardInitialized = false;
 
-            // Load initial dataset
-            await loadDashboardData();
 
-            // Setup Realtime Listener
-            initRealtimeSubscription(async (newReport) => {
-                console.log("Realtime notification received. Refreshing dashboard...");
-                await loadDashboardData();
-            });
+        // =====================================================
+        // DOM READY
+        // =====================================================
 
-            // Filter Event Listeners
-            document.getElementById("btnApplyFilters").addEventListener("click", loadDashboardData);
-            document.getElementById("btnResetFilters").addEventListener("click", () => {
-                document.getElementById("filterEvent").value = "";
-                document.getElementById("filterCity").value = "";
-                document.getElementById("filterState").value = "";
-                document.getElementById("filterStatus").value = "verified";
-                document.getElementById("filterFrom").value = "";
-                document.getElementById("filterTo").value = "";
-                loadDashboardData();
-            });
-        });
+        document.addEventListener(
+            "DOMContentLoaded",
+            async function () {
+
+                console.log(
+                    "Initializing National Weather Analytics Dashboard..."
+                );
+
+
+                try {
+
+                    // -----------------------------------------
+                    // INITIALIZE MAP
+                    // -----------------------------------------
+
+                    initWeatherMap("map");
+
+
+                    // -----------------------------------------
+                    // INITIALIZE CHARTS
+                    // -----------------------------------------
+
+                    if (
+                        typeof initCharts === "function"
+                    ) {
+
+                        initCharts();
+
+                    }
+
+
+                    // -----------------------------------------
+                    // LOAD REPORT DATA
+                    // -----------------------------------------
+
+                    await loadDashboardData();
+
+
+                    // -----------------------------------------
+                    // LOAD LIVE WEATHER
+                    // -----------------------------------------
+
+                    await loadLiveWeather();
+
+
+                    // -----------------------------------------
+                    // START AUTO REFRESH
+                    // -----------------------------------------
+
+                    startWeatherAutoRefresh();
+
+
+                    // -----------------------------------------
+                    // SUPABASE REALTIME
+                    // -----------------------------------------
+
+                    if (
+                        typeof initRealtimeSubscription ===
+                        "function"
+                    ) {
+
+                        initRealtimeSubscription(
+                            async function () {
+
+                                console.log(
+                                    "Realtime report received. Refreshing..."
+                                );
+
+                                await loadDashboardData();
+
+                            }
+                        );
+
+                    }
+
+
+                    // -----------------------------------------
+                    // APPLY FILTER
+                    // -----------------------------------------
+
+                    const applyButton =
+                        document.getElementById(
+                            "btnApplyFilters"
+                        );
+
+
+                    if (applyButton) {
+
+                        applyButton.addEventListener(
+                            "click",
+                            loadDashboardData
+                        );
+
+                    }
+
+
+                    // -----------------------------------------
+                    // RESET FILTER
+                    // -----------------------------------------
+
+                    const resetButton =
+                        document.getElementById(
+                            "btnResetFilters"
+                        );
+
+
+                    if (resetButton) {
+
+                        resetButton.addEventListener(
+                            "click",
+                            function () {
+
+                                document.getElementById(
+                                    "filterEvent"
+                                ).value = "";
+
+
+                                document.getElementById(
+                                    "filterCity"
+                                ).value = "";
+
+
+                                document.getElementById(
+                                    "filterState"
+                                ).value = "";
+
+
+                                document.getElementById(
+                                    "filterStatus"
+                                ).value = "verified";
+
+
+                                document.getElementById(
+                                    "filterFrom"
+                                ).value = "";
+
+
+                                document.getElementById(
+                                    "filterTo"
+                                ).value = "";
+
+
+                                loadDashboardData();
+
+                            }
+                        );
+
+                    }
+
+
+                    dashboardInitialized = true;
+
+
+                    console.log(
+                        "Dashboard initialization completed successfully."
+                    );
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Dashboard initialization error:",
+                        error
+                    );
+
+                    updateWeatherStatus(
+                        false,
+                        "Offline"
+                    );
+
+                }
+
+            }
+        );
+
+
+
+        // =====================================================
+        // LOAD REPORT DASHBOARD
+        // =====================================================
 
         async function loadDashboardData() {
+
             try {
+
+                console.log(
+                    "Loading weather reports..."
+                );
+
+
                 const filters = {
-                    event_type: document.getElementById("filterEvent").value,
-                    city: document.getElementById("filterCity").value,
-                    state: document.getElementById("filterState").value,
-                    verification_status: document.getElementById("filterStatus").value,
-                    date_from: document.getElementById("filterFrom").value,
-                    date_to: document.getElementById("filterTo").value
+
+                    event_type:
+                        document.getElementById(
+                            "filterEvent"
+                        ).value,
+
+                    city:
+                        document.getElementById(
+                            "filterCity"
+                        ).value,
+
+                    state:
+                        document.getElementById(
+                            "filterState"
+                        ).value,
+
+                    verification_status:
+                        document.getElementById(
+                            "filterStatus"
+                        ).value,
+
+                    date_from:
+                        document.getElementById(
+                            "filterFrom"
+                        ).value,
+
+                    date_to:
+                        document.getElementById(
+                            "filterTo"
+                        ).value
+
                 };
 
-                const reports = await fetchReports(filters);
-                currentReportsData = reports;
 
-                // Update Map Markers & Charts
-                updateMapMarkers(reports);
-                updateCharts(reports);
+                // -----------------------------------------
+                // CALL BACKEND
+                // -----------------------------------------
 
-                // Update Metrics Summary
-                document.getElementById("metricTotal").innerText = reports.length;
-                document.getElementById("metricVerified").innerText = reports.filter(r => r.verification_status === "verified").length;
-                document.getElementById("metricSevere").innerText = reports.filter(r => ["Flood", "Thunderstorm", "Heatwave"].includes(r.event_type)).length;
-                
-                const uniqueCities = new Set(reports.map(r => r.city)).size;
-                document.getElementById("metricCities").innerText = uniqueCities;
+                const response =
+                    await fetchReports(filters);
 
-            } catch (err) {
-                console.error("Failed to load dashboard data:", err);
+
+                // -----------------------------------------
+                // NORMALIZE RESPONSE
+                // -----------------------------------------
+
+                if (Array.isArray(response)) {
+
+                    currentReportsData =
+                        response;
+
+                }
+
+                else if (
+                    response &&
+                    Array.isArray(response.data)
+                ) {
+
+                    currentReportsData =
+                        response.data;
+
+                }
+
+                else {
+
+                    currentReportsData = [];
+
+                }
+
+
+                console.log(
+                    `Loaded ${currentReportsData.length} reports.`
+                );
+
+
+                // -----------------------------------------
+                // MAP
+                // -----------------------------------------
+
+                if (
+                    typeof updateMapMarkers ===
+                    "function"
+                ) {
+
+                    updateMapMarkers(
+                        currentReportsData
+                    );
+
+                }
+
+
+                // -----------------------------------------
+                // CHARTS
+                // -----------------------------------------
+
+                if (
+                    typeof updateCharts ===
+                    "function"
+                ) {
+
+                    updateCharts(
+                        currentReportsData
+                    );
+
+                }
+
+
+                // -----------------------------------------
+                // METRICS
+                // -----------------------------------------
+
+                updateMetrics(
+                    currentReportsData
+                );
+
             }
+
+            catch (error) {
+
+                console.error(
+                    "Failed to load dashboard data:",
+                    error
+                );
+
+            }
+
         }
+
+
+
+        // =====================================================
+        // METRICS
+        // =====================================================
+
+        function updateMetrics(reports) {
+
+            if (!Array.isArray(reports)) {
+
+                reports = [];
+
+            }
+
+
+            // TOTAL
+
+            const total =
+                reports.length;
+
+
+            // VERIFIED
+
+            const verified =
+                reports.filter(
+                    report =>
+                        String(
+                            report.verification_status || ""
+                        ).toLowerCase() ===
+                        "verified"
+                ).length;
+
+
+            // SEVERE
+
+            const severe =
+                reports.filter(
+                    report =>
+                        [
+                            "Flood",
+                            "Thunderstorm",
+                            "Heatwave"
+                        ].includes(
+                            report.event_type
+                        )
+                ).length;
+
+
+            // UNIQUE CITIES
+
+            const uniqueCities =
+                new Set(
+                    reports
+                        .map(
+                            report =>
+                                report.city
+                        )
+                        .filter(Boolean)
+                ).size;
+
+
+            // UPDATE DOM
+
+            const totalElement =
+                document.getElementById(
+                    "metricTotal"
+                );
+
+
+            const verifiedElement =
+                document.getElementById(
+                    "metricVerified"
+                );
+
+
+            const severeElement =
+                document.getElementById(
+                    "metricSevere"
+                );
+
+
+            const citiesElement =
+                document.getElementById(
+                    "metricCities"
+                );
+
+
+            if (totalElement) {
+
+                totalElement.innerText =
+                    total;
+
+            }
+
+
+            if (verifiedElement) {
+
+                verifiedElement.innerText =
+                    verified;
+
+            }
+
+
+            if (severeElement) {
+
+                severeElement.innerText =
+                    severe;
+
+            }
+
+
+            if (citiesElement) {
+
+                citiesElement.innerText =
+                    uniqueCities;
+
+            }
+
+        }
+
+
+
+        // =====================================================
+        // WEATHER STATUS
+        // =====================================================
+
+        function updateWeatherStatus(
+            connected,
+            text
+        ) {
+
+            const status =
+                document.getElementById(
+                    "weatherStatus"
+                );
+
+
+            if (!status) {
+
+                return;
+
+            }
+
+
+            if (connected) {
+
+                status.innerHTML =
+                    "● " + text;
+
+                status.style.color =
+                    "#10b981";
+
+            }
+
+            else {
+
+                status.innerHTML =
+                    "● " + text;
+
+                status.style.color =
+                    "#ef4444";
+
+            }
+
+        }
+
+
+
+        // =====================================================
+        // LAST UPDATED
+        // =====================================================
+
+        function updateWeatherLastUpdated(
+            weatherData
+        ) {
+
+            const element =
+                document.getElementById(
+                    "weatherLastUpdated"
+                );
+
+
+            if (!element) {
+
+                return;
+
+            }
+
+
+            if (
+                !weatherData ||
+                !weatherData.length
+            ) {
+
+                element.innerText =
+                    "Last updated: —";
+
+                return;
+
+            }
+
+
+            const timestamps =
+                weatherData
+                    .map(
+                        item =>
+                            item.observed_at
+                    )
+                    .filter(Boolean);
+
+
+            if (!timestamps.length) {
+
+                element.innerText =
+                    "Last updated: —";
+
+                return;
+
+            }
+
+
+            const latest =
+                timestamps.sort().pop();
+
+
+            const date =
+                new Date(latest);
+
+
+            if (
+                Number.isNaN(
+                    date.getTime()
+                )
+            ) {
+
+                element.innerText =
+                    "Last updated: —";
+
+                return;
+
+            }
+
+
+            element.innerText =
+                "Last observed: " +
+                date.toLocaleString(
+                    "en-IN"
+                );
+
+        }
+
+
+
+        // =====================================================
+        // LIVE WEATHER LOADER
+        // =====================================================
+
+        async function loadLiveWeather() {
+
+            try {
+
+                console.log(
+                    "Fetching live weather from FastAPI..."
+                );
+
+                // Show map loading indicator
+                setWeatherMapLoading(true);
+
+
+                const response =
+                    await fetchLiveWeather();
+
+
+                if (
+                    !response ||
+                    !response.success
+                ) {
+
+                    throw new Error(
+                        "Weather API returned unsuccessful response."
+                    );
+
+                }
+
+
+                const weatherData =
+                    response.data || [];
+
+
+                console.log(
+                    `Received ${weatherData.length} live weather locations.`
+                );
+
+
+                // Update map
+                updateLiveWeatherMarkers(
+                    weatherData
+                );
+
+
+                // Update timestamp
+                updateWeatherLastUpdated(
+                    weatherData
+                );
+
+
+                // Update status
+                updateWeatherStatus(
+                    true,
+                    "Live"
+                );
+
+
+                return weatherData;
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Live weather request failed:",
+                    error
+                );
+
+
+                updateWeatherStatus(
+                    false,
+                    "Weather unavailable"
+                );
+
+
+                throw error;
+
+            }
+
+            finally {
+
+                // Hide loading indicator
+                setWeatherMapLoading(false);
+
+            }
+
+        }
+
+
+
+        // =====================================================
+        // AUTO REFRESH
+        //
+        // Open-Meteo weather data is refreshed every 5 minutes.
+        // =====================================================
+
+        let weatherAutoRefreshTimer = null;
+
+
+        function startWeatherAutoRefresh() {
+
+            // Prevent duplicate timers
+
+            if (
+                weatherAutoRefreshTimer
+            ) {
+
+                clearInterval(
+                    weatherAutoRefreshTimer
+                );
+
+            }
+
+
+            weatherAutoRefreshTimer =
+                setInterval(
+                    async function () {
+
+                        console.log(
+                            "Refreshing live weather..."
+                        );
+
+
+                        await loadLiveWeather();
+
+                    },
+                    5 * 60 * 1000
+                );
+
+
+            console.log(
+                "Live weather auto-refresh started. Interval: 5 minutes."
+            );
+
+        }
+        function updateLiveWeatherMetrics(weatherData) {
+
+            if (!Array.isArray(weatherData) || weatherData.length === 0) {
+
+                document.getElementById("liveAvgTemp").innerText = "-- °C";
+                document.getElementById("liveMaxTemp").innerText = "-- °C";
+                document.getElementById("liveAvgHumidity").innerText = "-- %";
+                document.getElementById("liveMaxWind").innerText = "-- km/h";
+
+                return;
+            }
+
+
+            const temperatures = weatherData
+                .map(item => Number(item.temperature))
+                .filter(Number.isFinite);
+
+
+            const humidity = weatherData
+                .map(item => Number(item.humidity))
+                .filter(Number.isFinite);
+
+
+            const wind = weatherData
+                .map(item => Number(item.wind_speed))
+                .filter(Number.isFinite);
+
+
+            // Average temperature
+
+            if (temperatures.length > 0) {
+
+                const averageTemperature =
+                    temperatures.reduce(
+                        (sum, value) => sum + value,
+                        0
+                    ) / temperatures.length;
+
+
+                const maximumTemperature =
+                    Math.max(...temperatures);
+
+
+                document.getElementById(
+                    "liveAvgTemp"
+                ).innerText =
+                    `${Math.round(averageTemperature)} °C`;
+
+
+                document.getElementById(
+                    "liveMaxTemp"
+                ).innerText =
+                    `${Math.round(maximumTemperature)} °C`;
+
+            }
+
+
+            // Average humidity
+
+            if (humidity.length > 0) {
+
+                const averageHumidity =
+                    humidity.reduce(
+                        (sum, value) => sum + value,
+                        0
+                    ) / humidity.length;
+
+
+                document.getElementById(
+                    "liveAvgHumidity"
+                ).innerText =
+                    `${Math.round(averageHumidity)} %`;
+
+            }
+
+
+            // Maximum wind
+
+            if (wind.length > 0) {
+
+                const maximumWind =
+                    Math.max(...wind);
+
+
+                document.getElementById(
+                    "liveMaxWind"
+                ).innerText =
+                    `${Math.round(maximumWind)} km/h`;
+
+            }
+
+        }
+
     </script>
+
+
 </body>
+
 </html>
