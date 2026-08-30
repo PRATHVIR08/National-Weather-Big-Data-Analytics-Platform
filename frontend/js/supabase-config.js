@@ -1,7 +1,7 @@
 // Supabase Public Configuration
 // Fill in your project URL and Anon Key from your Supabase Dashboard
-const SUPABASE_URL = "https://vfqaajtwzyazgninxgtm.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmcWFhanR3enlhemduaW54Z3RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NjcwMjQsImV4cCI6MjEwMzU0MzAyNH0.PbN-N-Yr2EENkBdeEOSTDgkuCRi8neHGXbutkwS_QLw";
+const SUPABASE_URL = "https://ipwmwgvzylfwmqdrvyre.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwd213Z3Z6eWxmd21xZHJ2eXJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwOTQzODgsImV4cCI6MjEwMzY3MDM4OH0.uMHY8a_H36WUrup_qugziIjv6kj7oFmfcp9zTcwrqgA";
 
 let supabaseClient = null;
 

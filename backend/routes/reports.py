@@ -1,4 +1,5 @@
 import os
+import math
 import uuid
 from datetime import datetime, timezone, timedelta
 from typing import Optional, List
@@ -95,18 +96,54 @@ def create_report(report_data: ReportCreate):
     _in_memory_reports.append(new_report)
     return new_report
 
+def haversine_distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """
+    Calculate the great circle distance in kilometers between two points
+    using the Haversine formula for fast, accurate spatial location queries.
+    """
+    R = 6371.0  # Earth radius in km
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = (math.sin(dlat / 2.0) ** 2 +
+         math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2.0) ** 2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
+    return R * c
+
+
+@router.get("/spatial/info")
+def spatial_indexing_info():
+    """
+    Returns metadata about spatial indexing strategy.
+    Demonstrates decision: Plain Lat/Lng spatial indexing in Supabase Postgres vs Uber H3 Lakehouse.
+    """
+    return {
+        "strategy": "Plain Lat/Lng Composite Spatial Indexing",
+        "h3_status": "Not required - Plain Lat/Lng columns with spatial indexing provide hyper-fast queries at this scale.",
+        "indexed_columns": ["latitude", "longitude"],
+        "supported_spatial_filters": ["radius_km", "bounding_box (min_lat, max_lat, min_lng, max_lng)"]
+    }
+
+
 @router.get("", response_model=List[ReportResponse])
 def list_reports(
-    date_from: Optional[str] = Query(None, description="ISO format start date"),
-    date_to: Optional[str] = Query(None, description="ISO format end date"),
-    event_type: Optional[str] = Query(None, description="Filter by event type"),
-    city: Optional[str] = Query(None, description="Filter by city"),
-    state: Optional[str] = Query(None, description="Filter by state"),
-    verification_status: Optional[str] = Query(None, description="Filter status (verified, pending, rejected)"),
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    event_type: Optional[str] = None,
+    city: Optional[str] = None,
+    state: Optional[str] = None,
+    verification_status: Optional[str] = None,
+    # Plain Lat/Lng Spatial Location Parameters
+    min_lat: Optional[float] = None,
+    max_lat: Optional[float] = None,
+    min_lng: Optional[float] = None,
+    max_lng: Optional[float] = None,
+    lat: Optional[float] = None,
+    lng: Optional[float] = None,
+    radius_km: Optional[float] = None,
     authorization: Optional[str] = Header(None)
 ):
     """
-    List reports with filters.
+    List reports with filters and spatial location queries (Bounding box & Radius search).
     Public access returns ONLY 'verified' reports unless authenticated admin token is provided.
     """
     is_admin = False
@@ -141,9 +178,40 @@ def list_reports(
             if date_to:
                 query = query.lte("posted_at", date_to)
                 
+            # Spatial Bounding Box Filter
+            if min_lat is not None and max_lat is not None and min_lng is not None and max_lng is not None:
+                query = query.gte("latitude", min_lat).lte("latitude", max_lat)\
+                             .gte("longitude", min_lng).lte("longitude", max_lng)
+                             
+            # Spatial Radius Filter (Pre-filter bounding box in database using spatial index)
+            elif lat is not None and lng is not None and radius_km is not None:
+                lat_delta = radius_km / 111.0
+                cos_lat = max(0.1, math.cos(math.radians(lat)))
+                lng_delta = radius_km / (111.0 * cos_lat)
+                query = query.gte("latitude", lat - lat_delta).lte("latitude", lat + lat_delta)\
+                             .gte("longitude", lng - lng_delta).lte("longitude", lng + lng_delta)
+
             query = query.order("posted_at", desc=True).limit(500)
             res = query.execute()
-            return res.data or []
+            reports = res.data or []
+            
+            # Refine exact distance filtering for Radius Search
+            if lat is not None and lng is not None and radius_km is not None:
+                spatial_results = []
+                for r in reports:
+                    try:
+                        r_lat = float(r.get("latitude", 0))
+                        r_lng = float(r.get("longitude", 0))
+                        dist = haversine_distance_km(lat, lng, r_lat, r_lng)
+                        if dist <= radius_km:
+                            r_copy = dict(r)
+                            r_copy["distance_km"] = round(dist, 2)
+                            spatial_results.append(r_copy)
+                    except (ValueError, TypeError):
+                        continue
+                return sorted(spatial_results, key=lambda x: x["distance_km"])
+
+            return reports
         except Exception as e:
             print(f"[WARN] Supabase fetch error: {e}")
             
@@ -161,6 +229,29 @@ def list_reports(
         filtered = [r for r in filtered if city.lower() in r.get("city", "").lower()]
     if state:
         filtered = [r for r in filtered if state.lower() in r.get("state", "").lower()]
+
+    # In-memory spatial bounding box filter
+    if min_lat is not None and max_lat is not None and min_lng is not None and max_lng is not None:
+        filtered = [
+            r for r in filtered 
+            if min_lat <= float(r.get("latitude", 0)) <= max_lat and min_lng <= float(r.get("longitude", 0)) <= max_lng
+        ]
+
+    # In-memory spatial radius proximity filter
+    if lat is not None and lng is not None and radius_km is not None:
+        spatial_results = []
+        for r in filtered:
+            try:
+                r_lat = float(r.get("latitude", 0))
+                r_lng = float(r.get("longitude", 0))
+                dist = haversine_distance_km(lat, lng, r_lat, r_lng)
+                if dist <= radius_km:
+                    r_copy = dict(r)
+                    r_copy["distance_km"] = round(dist, 2)
+                    spatial_results.append(r_copy)
+            except (ValueError, TypeError):
+                continue
+        return sorted(spatial_results, key=lambda x: x["distance_km"])
         
     return sorted(filtered, key=lambda x: x.get("posted_at", ""), reverse=True)
 
