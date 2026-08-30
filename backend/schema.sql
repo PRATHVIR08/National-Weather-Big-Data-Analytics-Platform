@@ -20,12 +20,13 @@ CREATE TABLE IF NOT EXISTS public.reports (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 2. Indexes for performance
+-- 2. Indexes for performance & spatial location queries (Plain Lat/Lng Spatial Indexing)
 CREATE INDEX IF NOT EXISTS idx_reports_event_type ON public.reports(event_type);
 CREATE INDEX IF NOT EXISTS idx_reports_status ON public.reports(verification_status);
 CREATE INDEX IF NOT EXISTS idx_reports_city ON public.reports(city);
 CREATE INDEX IF NOT EXISTS idx_reports_state ON public.reports(state);
 CREATE INDEX IF NOT EXISTS idx_reports_posted_at ON public.reports(posted_at DESC);
+CREATE INDEX IF NOT EXISTS idx_reports_spatial ON public.reports(latitude, longitude);
 
 -- 3. Enable Row Level Security (RLS)
 ALTER TABLE public.reports ENABLE ROW LEVEL SECURITY;

@@ -346,3 +346,64 @@ Generates fully compliant OASIS CAP v1.2 XML alert documents specifying:
 3. Select the target region (e.g., *Punjab*, *Maharashtra*, *Delhi NCR*, *Nationwide*), choose the hazard event type (*Flash Flood Warning*), and toggle **📱 SMS** and **📧 Email**.
 4. Click **🚀 Broadcast Alert Now**.
 5. View the real-time delivery receipt with total population reached, SMS & Email delivery metrics, and expand the **OASIS CAP v1.2 XML Payload** drawer.
+
+---
+
+# Dynamic City Weather Search
+
+## What I Implemented
+
+Added a dynamic city weather search feature.
+
+Users can enter any Indian city name and get its current weather using the Open-Meteo API.
+
+The search provides:
+- City and State
+- Temperature
+- Feels Like Temperature
+- Weather Condition
+- Humidity
+- Wind Speed
+- Wind Gust
+- Rain
+- Precipitation
+- Cloud Cover
+- Atmospheric Pressure
+- Last Updated Time
+
+The city does not need to be present in the dashboard's predefined city list. The backend automatically finds the city using Open-Meteo's geocoding service and then fetches its weather.
+
+## Backend Setup
+
+Go to the backend folder:
+```bash
+cd backend
+pip install -r requirements.txt
+python main.py
+```
+
+The backend should run at:
+`http://127.0.0.1:8000`
+
+## API Endpoint
+
+The city weather API is:
+`http://127.0.0.1:8000/weather/city?city=Mumbai`
+
+Example:
+`http://127.0.0.1:8000/weather/city?city=Bengaluru`
+`http://127.0.0.1:8000/weather/city?city=Delhi`
+
+## How It Works
+
+1. User enters a city name in the Weather Search box.
+2. Frontend sends the city name to the backend.
+3. Backend uses Open-Meteo Geocoding API to find the city's coordinates.
+4. Backend uses the coordinates to request current weather data.
+5. Backend sends the weather data back to the frontend.
+6. Frontend displays the weather information.
+
+## Data Source
+
+Weather data is provided by Open-Meteo. No API key is required.
+

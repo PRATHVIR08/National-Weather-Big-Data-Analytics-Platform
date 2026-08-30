@@ -28,6 +28,7 @@ class ReportResponse(BaseModel):
     verification_status: str
     trust_score: float
     is_duplicate: bool
+    distance_km: Optional[float] = None
     created_at: Optional[str] = None
 
 class AdminActionResponse(BaseModel):
