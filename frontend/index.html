@@ -405,6 +405,153 @@
                     gap:1rem;
                     flex-wrap:wrap;
                 ">
+                <!-- =========================================================
+     CITY WEATHER SEARCH
+========================================================= -->
+
+<div class="glass-card weather-search-card">
+
+    <div class="weather-search-header">
+
+        <div>
+            <h2>🌤️ Weather Search</h2>
+
+            <p>
+                Search current weather conditions for any Indian city
+            </p>
+        </div>
+
+    </div>
+
+    <div class="weather-search">
+
+        <input
+            type="text"
+            id="weatherCity"
+            class="form-control"
+            placeholder="Enter city name, e.g. Mumbai"
+        >
+
+        <button
+            id="btnWeatherSearch"
+            class="btn-primary"
+        >
+            Search
+        </button>
+
+    </div>
+
+    <div
+        id="weatherLoading"
+        style="display:none;"
+    >
+        Loading weather...
+    </div>
+
+    <div
+        id="weatherError"
+        style="display:none;"
+    >
+    </div>
+
+    <div
+        id="weatherResult"
+        style="display:none;"
+    >
+
+        <h3 id="weatherLocation">
+            --
+        </h3>
+
+        <p id="weatherObserved">
+            --
+        </p>
+
+        <div class="weather-search-main">
+
+            <div class="temperature">
+
+                <span id="weatherTemperature">
+                    --
+                </span>
+
+                °C
+
+            </div>
+
+            <div>
+
+                <strong id="weatherCondition">
+                    --
+                </strong>
+
+                <p>
+                    Feels like
+                    <span id="weatherFeelsLike">
+                        --
+                    </span>
+                    °C
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="weather-details">
+
+            <div class="weather-detail">
+                💧
+                <div>
+                    <small>Humidity</small>
+                    <strong id="weatherHumidity">--%</strong>
+                </div>
+            </div>
+
+            <div class="weather-detail">
+                💨
+                <div>
+                    <small>Wind</small>
+                    <strong id="weatherWind">-- km/h</strong>
+                </div>
+            </div>
+
+            <div class="weather-detail">
+                🌧️
+                <div>
+                    <small>Rain</small>
+                    <strong id="weatherRain">-- mm</strong>
+                </div>
+            </div>
+
+            <div class="weather-detail">
+                ☁️
+                <div>
+                    <small>Cloud Cover</small>
+                    <strong id="weatherCloud">--%</strong>
+                </div>
+            </div>
+
+            <div class="weather-detail">
+                🎈
+                <div>
+                    <small>Pressure</small>
+                    <strong id="weatherPressure">-- hPa</strong>
+                </div>
+            </div>
+
+            <div class="weather-detail">
+                🌬️
+                <div>
+                    <small>Wind Gust</small>
+                    <strong id="weatherGust">-- km/h</strong>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 
                 <div>
@@ -632,6 +779,26 @@
         document.addEventListener(
             "DOMContentLoaded",
             async function () {
+                document
+    .getElementById("btnWeatherSearch")
+    .addEventListener(
+        "click",
+        searchCityWeather
+    );
+
+
+document
+    .getElementById("weatherCity")
+    .addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Enter") {
+                searchCityWeather();
+            }
+
+        }
+    );
 
                 console.log(
                     "Initializing National Weather Analytics Dashboard..."
@@ -1254,6 +1421,11 @@
                     weatherData
                 );
 
+                // Update live weather metrics
+updateLiveWeatherMetrics(
+    weatherData
+);
+
 
                 // Update status
                 updateWeatherStatus(
@@ -1432,6 +1604,154 @@
             }
 
         }
+        // ============================================================
+// CITY WEATHER SEARCH
+// ============================================================
+
+async function searchCityWeather() {
+
+    const input =
+        document.getElementById("weatherCity");
+
+    const city =
+        input.value.trim();
+
+    const loading =
+        document.getElementById("weatherLoading");
+
+    const error =
+        document.getElementById("weatherError");
+
+    const result =
+        document.getElementById("weatherResult");
+
+
+    if (!city) {
+
+        error.innerText =
+            "Please enter a city name.";
+
+        error.style.display = "block";
+
+        result.style.display = "none";
+
+        return;
+    }
+
+
+    loading.style.display = "block";
+
+    error.style.display = "none";
+
+    result.style.display = "none";
+
+
+    try {
+
+        const data =
+            await fetchWeatherByCity(city);
+
+
+        const location =
+            data.location;
+
+        const weather =
+            data.weather;
+
+
+        document.getElementById(
+            "weatherLocation"
+        ).innerText =
+            `${location.city}, ${location.state || location.country}`;
+
+
+        document.getElementById(
+            "weatherObserved"
+        ).innerText =
+            `Updated: ${data.observed_at || "--"}`;
+
+
+        document.getElementById(
+            "weatherTemperature"
+        ).innerText =
+            weather.temperature_c ?? "--";
+
+
+        document.getElementById(
+            "weatherFeelsLike"
+        ).innerText =
+            weather.feels_like_c ?? "--";
+
+
+        document.getElementById(
+            "weatherCondition"
+        ).innerText =
+            weather.condition ?? "Unknown";
+
+
+        document.getElementById(
+            "weatherHumidity"
+        ).innerText =
+            `${weather.humidity_pct ?? "--"}%`;
+
+
+        document.getElementById(
+            "weatherWind"
+        ).innerText =
+            `${weather.wind_speed_kmh ?? "--"} km/h`;
+
+
+        document.getElementById(
+            "weatherRain"
+        ).innerText =
+            `${weather.precipitation_mm ?? "--"} mm`;
+
+
+        document.getElementById(
+            "weatherCloud"
+        ).innerText =
+            `${weather.cloud_cover_pct ?? "--"}%`;
+
+
+        document.getElementById(
+            "weatherPressure"
+        ).innerText =
+            `${weather.pressure_hpa ?? "--"} hPa`;
+
+
+        document.getElementById(
+            "weatherGust"
+        ).innerText =
+            `${weather.wind_gust_kmh ?? "--"} km/h`;
+
+
+        result.style.display = "block";
+
+    }
+
+    catch (err) {
+
+        console.error(
+            "City weather search failed:",
+            err
+        );
+
+        error.innerText =
+            err.message ||
+            "Failed to load weather.";
+
+        error.style.display =
+            "block";
+
+    }
+
+    finally {
+
+        loading.style.display =
+            "none";
+
+    }
+}
 
     </script>
 

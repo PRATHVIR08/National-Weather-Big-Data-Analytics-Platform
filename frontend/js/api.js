@@ -372,3 +372,25 @@ console.log(
     "🌐 API Base URL:",
     API_BASE
 );
+
+// ============================================================
+// CITY WEATHER SEARCH
+// ============================================================
+
+async function fetchWeatherByCity(city) {
+
+    const response = await fetch(
+        `${API_BASE}/weather/city?city=${encodeURIComponent(city)}`
+    );
+
+    if (!response.ok) {
+
+        const error = await response.json().catch(() => ({}));
+
+        throw new Error(
+            error.detail || "Unable to fetch weather data"
+        );
+    }
+
+    return await response.json();
+}

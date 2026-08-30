@@ -4,12 +4,19 @@ from typing import List, Dict
 
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
+GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search"
 
 
-# Major Indian cities.
-# We can expand this later to 50/100+ locations.
+# ============================================================
+# CONFIGURED INDIAN CITIES FOR LIVE MAP
+# ============================================================
+
 INDIA_WEATHER_LOCATIONS = [
+
+    # --------------------------------------------------------
     # North India
+    # --------------------------------------------------------
+
     {"city": "Delhi", "state": "Delhi", "latitude": 28.6139, "longitude": 77.2090},
     {"city": "Chandigarh", "state": "Chandigarh", "latitude": 30.7333, "longitude": 76.7794},
     {"city": "Amritsar", "state": "Punjab", "latitude": 31.6340, "longitude": 74.8723},
@@ -28,7 +35,10 @@ INDIA_WEATHER_LOCATIONS = [
     {"city": "Jammu", "state": "Jammu and Kashmir", "latitude": 32.7266, "longitude": 74.8570},
     {"city": "Shimla", "state": "Himachal Pradesh", "latitude": 31.1048, "longitude": 77.1734},
 
+    # --------------------------------------------------------
     # West India
+    # --------------------------------------------------------
+
     {"city": "Mumbai", "state": "Maharashtra", "latitude": 19.0760, "longitude": 72.8777},
     {"city": "Pune", "state": "Maharashtra", "latitude": 18.5204, "longitude": 73.8567},
     {"city": "Nagpur", "state": "Maharashtra", "latitude": 21.1458, "longitude": 79.0882},
@@ -40,7 +50,10 @@ INDIA_WEATHER_LOCATIONS = [
     {"city": "Rajkot", "state": "Gujarat", "latitude": 22.3039, "longitude": 70.8022},
     {"city": "Panaji", "state": "Goa", "latitude": 15.4909, "longitude": 73.8278},
 
+    # --------------------------------------------------------
     # Central India
+    # --------------------------------------------------------
+
     {"city": "Bhopal", "state": "Madhya Pradesh", "latitude": 23.2599, "longitude": 77.4126},
     {"city": "Indore", "state": "Madhya Pradesh", "latitude": 22.7196, "longitude": 75.8577},
     {"city": "Gwalior", "state": "Madhya Pradesh", "latitude": 26.2183, "longitude": 78.1828},
@@ -48,7 +61,10 @@ INDIA_WEATHER_LOCATIONS = [
     {"city": "Raipur", "state": "Chhattisgarh", "latitude": 21.2514, "longitude": 81.6296},
     {"city": "Bilaspur", "state": "Chhattisgarh", "latitude": 22.0797, "longitude": 82.1409},
 
+    # --------------------------------------------------------
     # East India
+    # --------------------------------------------------------
+
     {"city": "Kolkata", "state": "West Bengal", "latitude": 22.5726, "longitude": 88.3639},
     {"city": "Siliguri", "state": "West Bengal", "latitude": 26.7271, "longitude": 88.3953},
     {"city": "Bhubaneswar", "state": "Odisha", "latitude": 20.2961, "longitude": 85.8245},
@@ -62,7 +78,10 @@ INDIA_WEATHER_LOCATIONS = [
     {"city": "Imphal", "state": "Manipur", "latitude": 24.8170, "longitude": 93.9368},
     {"city": "Agartala", "state": "Tripura", "latitude": 23.8315, "longitude": 91.2868},
 
+    # --------------------------------------------------------
     # South India
+    # --------------------------------------------------------
+
     {"city": "Bengaluru", "state": "Karnataka", "latitude": 12.9716, "longitude": 77.5946},
     {"city": "Mysuru", "state": "Karnataka", "latitude": 12.2958, "longitude": 76.6394},
     {"city": "Mangaluru", "state": "Karnataka", "latitude": 12.9141, "longitude": 74.8560},
@@ -79,9 +98,11 @@ INDIA_WEATHER_LOCATIONS = [
     {"city": "Kochi", "state": "Kerala", "latitude": 9.9312, "longitude": 76.2673},
     {"city": "Thiruvananthapuram", "state": "Kerala", "latitude": 8.5241, "longitude": 76.9366},
     {"city": "Kozhikode", "state": "Kerala", "latitude": 11.2588, "longitude": 75.7804},
-    {"city": "Bhubaneswar", "state": "Odisha", "latitude": 20.2961, "longitude": 85.8245},
 
-    # Northeast / additional coverage
+    # --------------------------------------------------------
+    # Northeast India
+    # --------------------------------------------------------
+
     {"city": "Aizawl", "state": "Mizoram", "latitude": 23.7271, "longitude": 92.7176},
     {"city": "Kohima", "state": "Nagaland", "latitude": 25.6751, "longitude": 94.1086},
     {"city": "Itanagar", "state": "Arunachal Pradesh", "latitude": 27.0844, "longitude": 93.6053},
@@ -89,32 +110,45 @@ INDIA_WEATHER_LOCATIONS = [
 ]
 
 
+# ============================================================
+# WEATHER CODE DESCRIPTION
+# ============================================================
+
 WEATHER_CODE_MAP = {
     0: "Clear Sky",
     1: "Mainly Clear",
     2: "Partly Cloudy",
     3: "Overcast",
+
     45: "Fog",
     48: "Depositing Rime Fog",
+
     51: "Light Drizzle",
     53: "Moderate Drizzle",
     55: "Dense Drizzle",
+
     56: "Light Freezing Drizzle",
     57: "Dense Freezing Drizzle",
+
     61: "Slight Rain",
     63: "Moderate Rain",
     65: "Heavy Rain",
+
     66: "Light Freezing Rain",
     67: "Heavy Freezing Rain",
+
     71: "Slight Snow",
     73: "Moderate Snow",
     75: "Heavy Snow",
     77: "Snow Grains",
+
     80: "Slight Rain Showers",
     81: "Moderate Rain Showers",
     82: "Violent Rain Showers",
+
     85: "Slight Snow Showers",
     86: "Heavy Snow Showers",
+
     95: "Thunderstorm",
     96: "Thunderstorm With Hail",
     99: "Thunderstorm With Heavy Hail",
@@ -122,14 +156,25 @@ WEATHER_CODE_MAP = {
 
 
 def get_weather_description(weather_code: int) -> str:
-    return WEATHER_CODE_MAP.get(weather_code, "Unknown")
+    """
+    Convert Open-Meteo weather code into a readable description.
+    """
 
+    return WEATHER_CODE_MAP.get(
+        weather_code,
+        "Unknown"
+    )
+
+
+# ============================================================
+# LIVE WEATHER FOR CONFIGURED LOCATIONS
+# ============================================================
 
 async def fetch_weather_for_locations() -> List[Dict]:
     """
     Fetch current weather for all configured Indian cities.
 
-    Open-Meteo supports multiple coordinates in one request.
+    This data is used by the live India weather map.
     """
 
     latitudes = ",".join(
@@ -154,6 +199,7 @@ async def fetch_weather_for_locations() -> List[Dict]:
             "rain",
             "weather_code",
             "cloud_cover",
+            "pressure_msl",
             "wind_speed_10m",
             "wind_direction_10m",
             "wind_gusts_10m",
@@ -168,7 +214,9 @@ async def fetch_weather_for_locations() -> List[Dict]:
         "precipitation_unit": "mm",
     }
 
-    async with httpx.AsyncClient(timeout=20.0) as client:
+    async with httpx.AsyncClient(
+        timeout=20.0
+    ) as client:
 
         response = await client.get(
             OPEN_METEO_URL,
@@ -179,7 +227,8 @@ async def fetch_weather_for_locations() -> List[Dict]:
 
         data = response.json()
 
-    # Open-Meteo returns a list when multiple coordinates are supplied.
+    # Open-Meteo returns a list when multiple
+    # coordinates are supplied.
     if isinstance(data, dict):
         data = [data]
 
@@ -192,9 +241,14 @@ async def fetch_weather_for_locations() -> List[Dict]:
 
         location = INDIA_WEATHER_LOCATIONS[index]
 
-        current = weather_data.get("current", {})
+        current = weather_data.get(
+            "current",
+            {}
+        )
 
-        weather_code = current.get("weather_code")
+        weather_code = current.get(
+            "weather_code"
+        )
 
         weather_result = {
             "city": location["city"],
@@ -203,52 +257,275 @@ async def fetch_weather_for_locations() -> List[Dict]:
             "latitude": location["latitude"],
             "longitude": location["longitude"],
 
-            "temperature": current.get("temperature_2m"),
-            "apparent_temperature": current.get(
-                "apparent_temperature"
-            ),
+            "temperature":
+                current.get("temperature_2m"),
 
-            "humidity": current.get(
-                "relative_humidity_2m"
-            ),
+            "apparent_temperature":
+                current.get("apparent_temperature"),
 
-            "precipitation": current.get(
-                "precipitation"
-            ),
+            "humidity":
+                current.get("relative_humidity_2m"),
 
-            "rain": current.get("rain"),
+            "precipitation":
+                current.get("precipitation"),
 
-            "cloud_cover": current.get(
-                "cloud_cover"
-            ),
+            "rain":
+                current.get("rain"),
 
-            "wind_speed": current.get(
-                "wind_speed_10m"
-            ),
+            "cloud_cover":
+                current.get("cloud_cover"),
 
-            "wind_direction": current.get(
-                "wind_direction_10m"
-            ),
+            "pressure":
+                current.get("pressure_msl"),
 
-            "wind_gusts": current.get(
-                "wind_gusts_10m"
-            ),
+            "wind_speed":
+                current.get("wind_speed_10m"),
 
-            "weather_code": weather_code,
+            "wind_direction":
+                current.get("wind_direction_10m"),
 
-            "condition": get_weather_description(
-                weather_code
-            ),
+            "wind_gusts":
+                current.get("wind_gusts_10m"),
 
-            "observed_at": current.get("time"),
+            "weather_code":
+                weather_code,
 
-            "source": "Open-Meteo",
+            "condition":
+                get_weather_description(
+                    weather_code
+                ),
 
-            "fetched_at": datetime.now(
-                timezone.utc
-            ).isoformat(),
+            "observed_at":
+                current.get("time"),
+
+            "source":
+                "Open-Meteo",
+
+            "fetched_at":
+                datetime.now(
+                    timezone.utc
+                ).isoformat(),
         }
 
-        results.append(weather_result)
+        results.append(
+            weather_result
+        )
 
     return results
+
+
+# ============================================================
+# DYNAMIC CITY WEATHER SEARCH
+# ============================================================
+
+async def fetch_weather_by_city(
+    city: str
+):
+    """
+    Search for any Indian city dynamically
+    using Open-Meteo geocoding and fetch
+    its current weather.
+
+    The city does NOT need to exist in
+    INDIA_WEATHER_LOCATIONS.
+    """
+
+    city = city.strip()
+
+    if not city:
+        raise ValueError(
+            "City name is required."
+        )
+
+    async with httpx.AsyncClient(
+        timeout=20.0
+    ) as client:
+
+        # ----------------------------------------------------
+        # 1. SEARCH CITY
+        # ----------------------------------------------------
+
+        geo_response = await client.get(
+            GEOCODING_URL,
+            params={
+                "name": city,
+                "count": 10,
+                "language": "en",
+                "format": "json",
+                "countryCode": "IN",
+            },
+        )
+
+        geo_response.raise_for_status()
+
+        geo_data = geo_response.json()
+
+        locations = geo_data.get(
+            "results",
+            []
+        )
+
+        if not locations:
+
+            raise ValueError(
+                f"Indian city '{city}' was not found."
+            )
+
+        # ----------------------------------------------------
+        # 2. SELECT LOCATION
+        # ----------------------------------------------------
+
+        location = locations[0]
+
+        latitude = location.get(
+            "latitude"
+        )
+
+        longitude = location.get(
+            "longitude"
+        )
+
+        if latitude is None or longitude is None:
+
+            raise ValueError(
+                f"Coordinates not available for '{city}'."
+            )
+
+        # ----------------------------------------------------
+        # 3. FETCH CURRENT WEATHER
+        # ----------------------------------------------------
+
+        weather_response = await client.get(
+            OPEN_METEO_URL,
+            params={
+                "latitude": latitude,
+                "longitude": longitude,
+
+                "current": ",".join([
+                    "temperature_2m",
+                    "relative_humidity_2m",
+                    "apparent_temperature",
+                    "precipitation",
+                    "rain",
+                    "cloud_cover",
+                    "pressure_msl",
+                    "wind_speed_10m",
+                    "wind_direction_10m",
+                    "wind_gusts_10m",
+                    "weather_code",
+                ]),
+
+                "timezone": "Asia/Kolkata",
+
+                "temperature_unit": "celsius",
+
+                "wind_speed_unit": "kmh",
+
+                "precipitation_unit": "mm",
+            },
+        )
+
+        weather_response.raise_for_status()
+
+        weather_data = weather_response.json()
+
+        current = weather_data.get(
+            "current",
+            {}
+        )
+
+        weather_code = current.get(
+            "weather_code"
+        )
+
+        # ----------------------------------------------------
+        # 4. RETURN NORMALIZED RESPONSE
+        # ----------------------------------------------------
+
+        return {
+
+            "location": {
+
+                "city":
+                    location.get("name"),
+
+                "state":
+                    location.get("admin1"),
+
+                "country":
+                    location.get("country"),
+
+                "latitude":
+                    latitude,
+
+                "longitude":
+                    longitude,
+            },
+
+            "weather": {
+
+                "temperature_c":
+                    current.get(
+                        "temperature_2m"
+                    ),
+
+                "feels_like_c":
+                    current.get(
+                        "apparent_temperature"
+                    ),
+
+                "condition":
+                    get_weather_description(
+                        weather_code
+                    ),
+
+                "humidity_pct":
+                    current.get(
+                        "relative_humidity_2m"
+                    ),
+
+                "wind_speed_kmh":
+                    current.get(
+                        "wind_speed_10m"
+                    ),
+
+                "wind_direction_deg":
+                    current.get(
+                        "wind_direction_10m"
+                    ),
+
+                "wind_gust_kmh":
+                    current.get(
+                        "wind_gusts_10m"
+                    ),
+
+                "precipitation_mm":
+                    current.get(
+                        "precipitation"
+                    ),
+
+                "rain_mm":
+                    current.get(
+                        "rain"
+                    ),
+
+                "cloud_cover_pct":
+                    current.get(
+                        "cloud_cover"
+                    ),
+
+                "pressure_hpa":
+                    current.get(
+                        "pressure_msl"
+                    ),
+
+                "weather_code":
+                    weather_code,
+            },
+
+            "observed_at":
+                current.get("time"),
+
+            "source":
+                "Open-Meteo",
+        }

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from routes.reports import router as reports_router
 from routes.admin import router as admin_router
+from routes.weather import router as weather_router
 from supabase_client import get_supabase_client
 from routes.weather import router as weather_router
 
