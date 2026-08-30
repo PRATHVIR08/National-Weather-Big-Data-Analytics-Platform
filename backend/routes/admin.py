@@ -42,6 +42,35 @@ def get_pending_reports(authorization: Optional[str] = Header(None)):
     pending = [r for r in _in_memory_reports if r.get("verification_status") == "pending"]
     return sorted(pending, key=lambda x: x.get("posted_at", ""), reverse=True)
 
+@router.get("/reports", response_model=List[ReportResponse])
+def get_admin_reports(
+    status: Optional[str] = Query(None),
+    authorization: Optional[str] = Header(None)
+):
+    """
+    Returns reports filtered by status ('pending', 'verified', 'rejected', or 'all').
+    Requires admin JWT authentication.
+    """
+    check_admin_auth(authorization)
+    supabase = get_supabase_client()
+    
+    if supabase:
+        try:
+            query = supabase.table("reports").select("*")
+            if status and status.lower() != "all":
+                query = query.eq("verification_status", status.lower())
+            res = query.order("posted_at", desc=True).execute()
+            return res.data or []
+        except Exception as e:
+            print(f"[ERROR] Database error fetching admin reports: {e}")
+            
+    # Memory fallback
+    filtered = _in_memory_reports
+    if status and status.lower() != "all":
+        filtered = [r for r in filtered if r.get("verification_status") == status.lower()]
+    return sorted(filtered, key=lambda x: x.get("posted_at", ""), reverse=True)
+
+
 @router.post("/verify/{report_id}", response_model=AdminActionResponse)
 def verify_report(report_id: int, authorization: Optional[str] = Header(None)):
     """

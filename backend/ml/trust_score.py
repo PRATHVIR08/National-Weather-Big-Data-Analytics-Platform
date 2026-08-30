@@ -20,22 +20,25 @@ def calculate_trust_score(
     - High ML Model Confidence (>= 80%): +15 bonus
     - Duplicate penalty: -50
     """
-    score = 0.0
+    # Base trust score for user submissions (20.0)
+    score = 20.0
     
     # 1. Media attachment check (+20)
     if has_photo or has_video:
         score += 20.0
         
-    # 2. Source check (+40)
+    # 2. Source check (+30 to +40)
     source_lower = (source or "").strip().lower()
     if source_lower in ["imd", "government", "official", "gov"]:
         score += 40.0
     elif source_lower == "kaggle_seed":
         score += 35.0
-        
-    # 3. Text content quality (+10)
-    if text_content and len(text_content.strip()) > 20:
+    elif source_lower == "citizen":
         score += 10.0
+        
+    # 3. Text content quality (+15)
+    if text_content and len(text_content.strip()) > 20:
+        score += 15.0
         
     # 4. GPS Coordinates presence (+15)
     if latitude != 0.0 or longitude != 0.0:
@@ -56,11 +59,18 @@ def calculate_trust_score(
     final_score = max(0.0, min(100.0, score))
     
     # Determine status
-    if final_score >= 70.0:
+    if source_lower == "citizen":
+        # Citizen submissions require manual verification in the Admin Portal
+        if final_score < 35.0 or is_duplicate:
+            status = "rejected"
+        else:
+            status = "pending"
+    elif final_score >= 70.0:
         status = "verified"
-    elif final_score >= 40.0:
+    elif final_score >= 35.0:
         status = "pending"
     else:
         status = "rejected"
         
     return final_score, status
+

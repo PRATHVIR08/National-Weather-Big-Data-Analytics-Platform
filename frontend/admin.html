@@ -69,18 +69,23 @@
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                 <div>
-                    <h2>Pending Verification Queue</h2>
+                    <h2 id="adminQueueTitle">Pending Verification Queue</h2>
                     <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                        Review citizen and social reports flagged as pending (trust score 40–69).
+                        Manage incident reports submitted by citizens and external sources.
                     </p>
                 </div>
-                <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-                    <button onclick="openCapModal()" style="padding: 0.6rem 1.2rem; border-radius: 8px; border: none; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
-                        🚨 CAP Emergency Dispatch
-                    </button>
-                    <button id="btnRefreshPending" class="form-control" style="cursor: pointer;">🔄 Refresh Queue</button>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <button id="btnRefreshQueue" class="form-control" style="cursor: pointer;">🔄 Refresh Queue</button>
                     <button id="btnLogout" class="btn-danger" style="cursor: pointer;">Log Out</button>
                 </div>
+            </div>
+
+            <!-- Status Filter Tabs -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem; flex-wrap: wrap;">
+                <button class="status-tab active" data-status="pending" style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--primary-teal); background: rgba(16, 185, 129, 0.2); color: white; cursor: pointer; font-weight: 500;">⏳ Pending Queue</button>
+                <button class="status-tab" data-status="verified" style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-secondary); cursor: pointer; font-weight: 500;">✓ Verified Reports</button>
+                <button class="status-tab" data-status="rejected" style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-secondary); cursor: pointer; font-weight: 500;">✕ Rejected Reports</button>
+                <button class="status-tab" data-status="all" style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-secondary); cursor: pointer; font-weight: 500;">📁 All Reports</button>
             </div>
 
             <!-- Table Container -->
@@ -93,7 +98,7 @@
                             <th>Event</th>
                             <th>Location</th>
                             <th>Report Text</th>
-                            <th>Trust Score</th>
+                            <th>Status & Trust</th>
                             <th>Posted At</th>
                             <th>Actions</th>
                         </tr>
@@ -101,7 +106,7 @@
                     <tbody id="pendingTableBody">
                         <tr>
                             <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
-                                Loading pending queue...
+                                Loading reports...
                             </td>
                         </tr>
                     </tbody>
@@ -232,6 +237,8 @@
     <script src="js/api.js"></script>
 
     <script>
+        let currentAdminFilter = "pending";
+
         document.addEventListener("DOMContentLoaded", () => {
             const loginSection = document.getElementById("loginSection");
             const adminPanelSection = document.getElementById("adminPanelSection");
@@ -291,44 +298,77 @@
             });
 
             // Refresh Button
-            document.getElementById("btnRefreshPending").addEventListener("click", fetchAndRenderPending);
+            document.getElementById("btnRefreshQueue").addEventListener("click", () => fetchAndRenderAdminReports(currentAdminFilter));
+
+            // Tab Click Handlers
+            document.querySelectorAll(".status-tab").forEach(tab => {
+                tab.addEventListener("click", (e) => {
+                    document.querySelectorAll(".status-tab").forEach(t => {
+                        t.style.background = "rgba(255,255,255,0.05)";
+                        t.style.color = "var(--text-secondary)";
+                        t.style.borderColor = "rgba(255,255,255,0.1)";
+                    });
+
+                    const target = e.currentTarget;
+                    target.style.background = "rgba(16, 185, 129, 0.2)";
+                    target.style.color = "white";
+                    target.style.borderColor = "var(--primary-teal)";
+
+                    currentAdminFilter = target.dataset.status;
+                    
+                    const titleMap = {
+                        "pending": "Pending Verification Queue",
+                        "verified": "Verified Incident Reports",
+                        "rejected": "Rejected Incident Reports",
+                        "all": "All Incident Reports Overview"
+                    };
+                    document.getElementById("adminQueueTitle").innerText = titleMap[currentAdminFilter] || "Incident Reports";
+
+                    fetchAndRenderAdminReports(currentAdminFilter);
+                });
+            });
         });
 
         function showAdminPanel() {
             document.getElementById("loginSection").style.display = "none";
             document.getElementById("adminPanelSection").style.display = "block";
-            fetchAndRenderPending();
+            fetchAndRenderAdminReports(currentAdminFilter);
         }
 
-        async function fetchAndRenderPending() {
+        async function fetchAndRenderAdminReports(statusFilter = "pending") {
             const tbody = document.getElementById("pendingTableBody");
             tbody.innerHTML = `
                 <tr>
                     <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
-                        Fetching pending reports...
+                        Fetching ${statusFilter} reports...
                     </td>
                 </tr>
             `;
 
             try {
-                const pendingReports = await fetchAdminPending();
+                const reports = await fetchAdminReports(statusFilter);
                 
-                if (!pendingReports || pendingReports.length === 0) {
+                if (!reports || reports.length === 0) {
                     tbody.innerHTML = `
                         <tr>
                             <td colspan="8" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
-                                ✨ No pending reports awaiting verification.
+                                ✨ No reports found for category '${statusFilter}'.
                             </td>
                         </tr>
                     `;
                     return;
                 }
 
-                tbody.innerHTML = pendingReports.map(r => {
+                tbody.innerHTML = reports.map(r => {
                     const eventClass = `badge-${(r.event_type || 'other').toLowerCase()}`;
                     const score = Math.round(r.trust_score || 50);
                     const dateStr = r.posted_at ? new Date(r.posted_at).toLocaleString() : 'N/A';
                     const mediaLink = r.photo_url ? `<br/><a href="${r.photo_url}" target="_blank" style="color:#38bdf8; font-size:0.75rem;">View Media</a>` : '';
+                    
+                    const statusVal = (r.verification_status || 'pending').toLowerCase();
+                    let statusBadgeClass = 'status-pending';
+                    if (statusVal === 'verified') statusBadgeClass = 'status-verified';
+                    if (statusVal === 'rejected') statusBadgeClass = 'status-rejected';
 
                     return `
                         <tr>
@@ -337,12 +377,15 @@
                             <td><span class="popup-badge ${eventClass}">${r.event_type}</span></td>
                             <td><strong>${r.city}</strong>, ${r.state}</td>
                             <td style="max-width: 280px; font-size:0.85rem;">${r.text_content} ${mediaLink}</td>
-                            <td><span class="popup-badge status-pending">${score}/100</span></td>
+                            <td>
+                                <span class="popup-badge ${statusBadgeClass}">${statusVal.toUpperCase()}</span>
+                                <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem;">Score: ${score}/100</div>
+                            </td>
                             <td style="font-size:0.75rem; color:var(--text-secondary);">${dateStr}</td>
                             <td>
                                 <div class="action-btns">
-                                    <button class="btn-success" onclick="handleVerify(${r.id})">✓ Verify</button>
-                                    <button class="btn-danger" onclick="handleReject(${r.id})">✕ Reject</button>
+                                    ${statusVal !== 'verified' ? `<button class="btn-success" onclick="handleVerify(${r.id})">✓ Verify</button>` : ''}
+                                    ${statusVal !== 'rejected' ? `<button class="btn-danger" onclick="handleReject(${r.id})">✕ Reject</button>` : ''}
                                 </div>
                             </td>
                         </tr>
@@ -353,7 +396,7 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="8" style="text-align: center; color: #ef4444; padding: 2rem;">
-                            Error loading pending queue: ${err.message}
+                            Error loading reports: ${err.message}
                         </td>
                     </tr>
                 `;
@@ -363,7 +406,7 @@
         async function handleVerify(id) {
             try {
                 await verifyReport(id);
-                fetchAndRenderPending();
+                fetchAndRenderAdminReports(currentAdminFilter);
             } catch (err) {
                 alert(`Failed to verify: ${err.message}`);
             }
@@ -372,7 +415,7 @@
         async function handleReject(id) {
             try {
                 await rejectReport(id);
-                fetchAndRenderPending();
+                fetchAndRenderAdminReports(currentAdminFilter);
             } catch (err) {
                 alert(`Failed to reject: ${err.message}`);
             }
@@ -472,3 +515,4 @@
     </script>
 </body>
 </html>
+
