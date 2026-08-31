@@ -1043,3 +1043,377 @@ function escapeHtml(str) {
         }
     );
 }
+
+
+// ============================================================
+// FILTER → MAP CONNECTION
+// ============================================================
+
+async function applyMapFilters() {
+
+    console.log("Applying map filters...");
+
+    // --------------------------------------------------------
+    // GET FILTER VALUES FROM HTML
+    // --------------------------------------------------------
+
+    const eventTypeElement =
+        document.getElementById("eventCategory");
+
+    const cityElement =
+        document.getElementById("cityLocation");
+
+    const stateElement =
+        document.getElementById("state");
+
+    const statusElement =
+        document.getElementById("status");
+
+    const dateFromElement =
+        document.getElementById("dateFrom");
+
+    const dateToElement =
+        document.getElementById("dateTo");
+
+
+    // --------------------------------------------------------
+    // READ VALUES
+    // --------------------------------------------------------
+
+    const eventType =
+        eventTypeElement?.value || "";
+
+    const city =
+        cityElement?.value.trim() || "";
+
+    const state =
+        stateElement?.value.trim() || "";
+
+    const status =
+        statusElement?.value || "verified";
+
+    const dateFrom =
+        dateFromElement?.value || "";
+
+    const dateTo =
+        dateToElement?.value || "";
+
+
+    console.log("FILTER VALUES:", {
+        eventType,
+        city,
+        state,
+        status,
+        dateFrom,
+        dateTo
+    });
+
+
+    // --------------------------------------------------------
+    // SHOW LOADING
+    // --------------------------------------------------------
+
+    setWeatherMapLoading(true);
+
+
+    try {
+
+        // ----------------------------------------------------
+        // BUILD API URL
+        // ----------------------------------------------------
+
+        const params =
+            new URLSearchParams();
+
+
+        // Event type
+
+        if (
+            eventType &&
+            eventType !== "all"
+        ) {
+
+            params.append(
+                "event_type",
+                eventType
+            );
+
+        }
+
+
+        // City
+
+        if (city) {
+
+            params.append(
+                "city",
+                city
+            );
+
+        }
+
+
+        // State
+
+        if (state) {
+
+            params.append(
+                "state",
+                state
+            );
+
+        }
+
+
+        // Verification status
+
+        if (
+            status &&
+            status !== "all"
+        ) {
+
+            params.append(
+                "verification_status",
+                status
+            );
+
+        }
+
+
+        // Date From
+
+        if (dateFrom) {
+
+            params.append(
+                "date_from",
+                `${dateFrom}T00:00:00`
+            );
+
+        }
+
+
+        // Date To
+
+        if (dateTo) {
+
+            params.append(
+                "date_to",
+                `${dateTo}T23:59:59`
+            );
+
+        }
+
+
+        // ----------------------------------------------------
+        // API URL
+        // ----------------------------------------------------
+
+        const url =
+            `${API_BASE}/reports?${params.toString()}`;
+
+
+        console.log(
+            "Fetching reports:",
+            url
+        );
+
+
+        // ----------------------------------------------------
+        // FETCH REPORTS
+        // ----------------------------------------------------
+
+        const response =
+            await fetch(url);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Reports API failed: ${response.status}`
+            );
+
+        }
+
+
+        const reports =
+            await response.json();
+
+
+        console.log(
+            "Filtered reports:",
+            reports
+        );
+
+
+        // ----------------------------------------------------
+        // UPDATE MAP MARKERS
+        // ----------------------------------------------------
+
+        updateMapMarkers(reports);
+
+
+        // ----------------------------------------------------
+        // ZOOM TO FILTERED LOCATIONS
+        // ----------------------------------------------------
+
+        zoomToFilteredReports(reports);
+
+
+    } catch (error) {
+
+        console.error(
+            "Map filter error:",
+            error
+        );
+
+        alert(
+            "Unable to load filtered weather reports."
+        );
+
+    } finally {
+
+        setWeatherMapLoading(false);
+
+    }
+
+    // ============================================================
+    // ZOOM MAP TO FILTERED REPORTS
+    // ============================================================
+
+    function zoomToFilteredReports(reports) {
+
+        if (
+            !weatherMap ||
+            !Array.isArray(reports) ||
+            reports.length === 0
+        ) {
+
+            console.log(
+                "No locations available for map zoom."
+            );
+
+            return;
+        }
+
+
+        // --------------------------------------------------------
+        // COLLECT VALID COORDINATES
+        // --------------------------------------------------------
+
+        const coordinates = [];
+
+
+        reports.forEach(report => {
+
+            const lat =
+                Number(report.latitude);
+
+            const lng =
+                Number(report.longitude);
+
+
+            if (
+                Number.isFinite(lat) &&
+                Number.isFinite(lng)
+            ) {
+
+                coordinates.push([
+                    lat,
+                    lng
+                ]);
+
+            }
+
+        });
+
+
+        if (coordinates.length === 0) {
+
+            console.log(
+                "No valid coordinates found."
+            );
+
+            return;
+        }
+
+
+        // --------------------------------------------------------
+        // ONLY ONE REPORT
+        // --------------------------------------------------------
+
+        if (coordinates.length === 1) {
+
+            weatherMap.setView(
+                coordinates[0],
+                13,
+                {
+                    animate: true
+                }
+            );
+
+            return;
+        }
+
+
+        // --------------------------------------------------------
+        // MULTIPLE REPORTS
+        // --------------------------------------------------------
+
+        const bounds =
+            L.latLngBounds(
+                coordinates
+            );
+
+
+        weatherMap.fitBounds(
+            bounds,
+            {
+                padding: [
+                    50,
+                    50
+                ],
+
+                maxZoom: 12,
+
+                animate: true
+            }
+        );
+
+    }
+}
+
+// ============================================================
+// FILTER BUTTON EVENT
+// ============================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const applyButton =
+            document.getElementById(
+                "applyFilters"
+            );
+
+
+        if (!applyButton) {
+
+            console.warn(
+                "Apply Filters button not found."
+            );
+
+            return;
+        }
+
+
+        applyButton.addEventListener(
+            "click",
+            function () {
+
+                applyMapFilters();
+
+            }
+        );
+
+    }
+)

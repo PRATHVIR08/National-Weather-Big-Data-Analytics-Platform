@@ -1,34 +1,62 @@
-// ============================================================
-// API SERVICE LAYER
-// National Weather Big Data Analytics Platform
+/// ============================================================
+// API CONFIGURATION
 // ============================================================
 
 const API_BASE =
-    window.location.origin.includes("localhost") ||
-        window.location.origin.includes("127.0.0.1")
-        ? "http://localhost:8000"
+    window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+        ? "http://127.0.0.1:8000"
         : window.location.origin;
 
 
 // ============================================================
-// REPORT APIs
+// FETCH REPORTS WITH FILTERS
 // ============================================================
 
 async function fetchReports(filters = {}) {
 
     const params = new URLSearchParams();
 
+
+    // --------------------------------------------------------
+    // EVENT TYPE
+    // --------------------------------------------------------
+
     if (filters.event_type) {
-        params.append("event_type", filters.event_type);
+        params.append(
+            "event_type",
+            filters.event_type
+        );
     }
+
+
+    // --------------------------------------------------------
+    // CITY
+    // --------------------------------------------------------
 
     if (filters.city) {
-        params.append("city", filters.city);
+        params.append(
+            "city",
+            filters.city
+        );
     }
 
+
+    // --------------------------------------------------------
+    // STATE
+    // --------------------------------------------------------
+
     if (filters.state) {
-        params.append("state", filters.state);
+        params.append(
+            "state",
+            filters.state
+        );
     }
+
+
+    // --------------------------------------------------------
+    // VERIFICATION STATUS
+    // --------------------------------------------------------
 
     if (filters.verification_status) {
         params.append(
@@ -37,65 +65,119 @@ async function fetchReports(filters = {}) {
         );
     }
 
+
+    // --------------------------------------------------------
+    // DATE FROM
+    // --------------------------------------------------------
+
     if (filters.date_from) {
-        params.append("date_from", filters.date_from);
-    }
-
-    if (filters.date_to) {
-        params.append("date_to", filters.date_to);
-    }
-
-    // Spatial location query parameters (Plain Lat/Lng Spatial Indexing)
-    if (filters.lat !== undefined && filters.lat !== null) {
-        params.append("lat", filters.lat);
-    }
-
-    if (filters.lng !== undefined && filters.lng !== null) {
-        params.append("lng", filters.lng);
-    }
-
-    if (filters.radius_km !== undefined && filters.radius_km !== null) {
-        params.append("radius_km", filters.radius_km);
-    }
-
-    if (filters.min_lat !== undefined && filters.min_lat !== null) {
-        params.append("min_lat", filters.min_lat);
-    }
-
-    if (filters.max_lat !== undefined && filters.max_lat !== null) {
-        params.append("max_lat", filters.max_lat);
-    }
-
-    if (filters.min_lng !== undefined && filters.min_lng !== null) {
-        params.append("min_lng", filters.min_lng);
-    }
-
-    if (filters.max_lng !== undefined && filters.max_lng !== null) {
-        params.append("max_lng", filters.max_lng);
-    }
-
-    const headers = {};
-
-    const adminToken = localStorage.getItem("admin_jwt");
-
-    if (adminToken) {
-        headers["Authorization"] = `Bearer ${adminToken}`;
-    }
-
-    const response = await fetch(
-        `${API_BASE}/reports?${params.toString()}`,
-        {
-            method: "GET",
-            headers,
-            cache: "no-store"
-        }
-    );
-
-    if (!response.ok) {
-        throw new Error(
-            `API fetch error: ${response.status} ${response.statusText}`
+        params.append(
+            "date_from",
+            filters.date_from
         );
     }
+
+
+    // --------------------------------------------------------
+    // DATE TO
+    // --------------------------------------------------------
+
+    if (filters.date_to) {
+        params.append(
+            "date_to",
+            filters.date_to
+        );
+    }
+
+
+    // --------------------------------------------------------
+    // SPATIAL FILTER
+    // --------------------------------------------------------
+
+    if (
+        filters.lat !== undefined &&
+        filters.lat !== null
+    ) {
+        params.append(
+            "lat",
+            filters.lat
+        );
+    }
+
+    if (
+        filters.lng !== undefined &&
+        filters.lng !== null
+    ) {
+        params.append(
+            "lng",
+            filters.lng
+        );
+    }
+
+    if (
+        filters.radius_km !== undefined &&
+        filters.radius_km !== null
+    ) {
+        params.append(
+            "radius_km",
+            filters.radius_km
+        );
+    }
+
+
+    // --------------------------------------------------------
+    // ADMIN AUTH
+    // --------------------------------------------------------
+
+    const token =
+        localStorage.getItem("admin_jwt");
+
+
+    const headers = {
+        "Content-Type": "application/json"
+    };
+
+
+    if (token) {
+
+        headers["Authorization"] =
+            `Bearer ${token}`;
+
+    }
+
+
+    // --------------------------------------------------------
+    // API REQUEST
+    // --------------------------------------------------------
+
+    const url =
+        `${API_BASE}/reports?${params.toString()}`;
+
+
+    console.log(
+        "REPORT API:",
+        url
+    );
+
+
+    const response =
+        await fetch(
+            url,
+            {
+                method: "GET",
+                headers: headers
+            }
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            `Reports API failed: ${response.status}`
+        );
+
+    }
+
 
     return await response.json();
 }

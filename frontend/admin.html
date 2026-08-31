@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal — Verification & Control Center</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
     <!-- Header Navigation -->
     <header class="navbar">
         <a href="index.html" class="brand">
             <div class="brand-icon">🌩️</div>
-            <span class="brand-title">National Weather Analytics</span>
+            <span class="brand-title">RITARA</span>
         </a>
         <ul class="nav-links">
             <li><a href="index.html" class="nav-link">Live Dashboard</a></li>
@@ -28,9 +32,10 @@
 
     <!-- Main Container -->
     <main class="dashboard-container" style="grid-template-columns: 1fr;">
-        
+
         <!-- Auth Login Section (shown if unauthenticated) -->
-        <section id="loginSection" class="glass-card" style="max-width: 440px; margin: 3rem auto; padding: 2rem; width: 100%;">
+        <section id="loginSection" class="glass-card"
+            style="max-width: 440px; margin: 3rem auto; padding: 2rem; width: 100%;">
             <div style="text-align: center; margin-bottom: 1.5rem;">
                 <h2>Admin Login</h2>
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">
@@ -41,7 +46,8 @@
             <form id="adminLoginForm">
                 <div class="filter-group" style="margin-bottom: 1rem;">
                     <label for="adminEmail">Email Address</label>
-                    <input type="email" id="adminEmail" class="form-control" placeholder="admin@weather.gov.in" required>
+                    <input type="email" id="adminEmail" class="form-control" placeholder="admin@weather.gov.in"
+                        required>
                 </div>
 
                 <div class="filter-group" style="margin-bottom: 1.5rem;">
@@ -49,7 +55,8 @@
                     <input type="password" id="adminPassword" class="form-control" placeholder="••••••••" required>
                 </div>
 
-                <div id="loginError" style="color: #ef4444; font-size: 0.85rem; margin-bottom: 1rem; display: none;"></div>
+                <div id="loginError" style="color: #ef4444; font-size: 0.85rem; margin-bottom: 1rem; display: none;">
+                </div>
 
                 <button type="submit" id="btnLogin" class="btn-primary" style="width: 100%; justify-content: center;">
                     Sign In to Panel
@@ -57,8 +64,10 @@
             </form>
 
             <div style="margin-top: 1.5rem; pt: 1rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
-                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Demonstration Emergency Mode:</p>
-                <button type="button" onclick="openCapModal()" style="width: 100%; padding: 0.65rem; border-radius: 8px; border: none; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Demonstration
+                    Emergency Mode:</p>
+                <button type="button" onclick="openCapModal()"
+                    style="width: 100%; padding: 0.65rem; border-radius: 8px; border: none; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
                     🚨 Launch CAP Emergency Dispatch
                 </button>
             </div>
@@ -66,8 +75,9 @@
 
         <!-- Admin Control Panel Section (shown when authenticated) -->
         <section id="adminPanelSection" class="glass-card" style="padding: 2rem; display: none;">
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                 <div>
                     <h2 id="adminQueueTitle">Pending Verification Queue</h2>
                     <p style="color: var(--text-secondary); font-size: 0.9rem;">
@@ -81,11 +91,20 @@
             </div>
 
             <!-- Status Filter Tabs -->
-            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem; flex-wrap: wrap;">
-                <button class="status-tab active" data-status="pending" style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--primary-teal); background: rgba(16, 185, 129, 0.2); color: white; cursor: pointer; font-weight: 500;">⏳ Pending Queue</button>
-                <button class="status-tab" data-status="verified" style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-secondary); cursor: pointer; font-weight: 500;">✓ Verified Reports</button>
-                <button class="status-tab" data-status="rejected" style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-secondary); cursor: pointer; font-weight: 500;">✕ Rejected Reports</button>
-                <button class="status-tab" data-status="all" style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-secondary); cursor: pointer; font-weight: 500;">📁 All Reports</button>
+            <div
+                style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem; flex-wrap: wrap;">
+                <button class="status-tab active" data-status="pending"
+                    style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--primary-teal); background: rgba(16, 185, 129, 0.2); color: white; cursor: pointer; font-weight: 500;">⏳
+                    Pending Queue</button>
+                <button class="status-tab" data-status="verified"
+                    style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-secondary); cursor: pointer; font-weight: 500;">✓
+                    Verified Reports</button>
+                <button class="status-tab" data-status="rejected"
+                    style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-secondary); cursor: pointer; font-weight: 500;">✕
+                    Rejected Reports</button>
+                <button class="status-tab" data-status="all"
+                    style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-secondary); cursor: pointer; font-weight: 500;">📁
+                    All Reports</button>
             </div>
 
             <!-- Table Container -->
@@ -119,28 +138,36 @@
         <!-- =====================================================
              CAP EMERGENCY DISPATCH MODAL
         ====================================================== -->
-        <div id="capModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); z-index: 9999; justify-content: center; align-items: center; padding: 1.5rem;">
-            <div style="background: #1e293b; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 16px; max-width: 650px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(239, 68, 68, 0.25);">
-                
+        <div id="capModal"
+            style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); z-index: 9999; justify-content: center; align-items: center; padding: 1.5rem;">
+            <div
+                style="background: #1e293b; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 16px; max-width: 650px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(239, 68, 68, 0.25);">
+
                 <!-- Modal Header -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
                     <div>
-                        <h2 style="margin: 0; color: #f8fafc; font-size: 1.4rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <h2
+                            style="margin: 0; color: #f8fafc; font-size: 1.4rem; display: flex; align-items: center; gap: 0.5rem;">
                             <span>🚨</span> CAP Emergency Broadcast Dispatch
                         </h2>
                         <p style="margin: 0.25rem 0 0 0; color: #94a3b8; font-size: 0.85rem;">
                             OASIS Common Alerting Protocol v1.2 Multi-Channel Alert System
                         </p>
                     </div>
-                    <button onclick="closeCapModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">✕</button>
+                    <button onclick="closeCapModal()"
+                        style="background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">✕</button>
                 </div>
 
                 <!-- Form Controls -->
                 <form id="capForm" onsubmit="handleCapDispatch(event)">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                         <div>
-                            <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Target Region / State</label>
-                            <select id="capRegion" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff;">
+                            <label
+                                style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Target
+                                Region / State</label>
+                            <select id="capRegion"
+                                style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff;">
                                 <option value="All India">All India (Nationwide)</option>
                                 <option value="Punjab">Punjab</option>
                                 <option value="Maharashtra">Maharashtra</option>
@@ -153,8 +180,11 @@
                             </select>
                         </div>
                         <div>
-                            <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Hazard Event Type</label>
-                            <select id="capEvent" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff;">
+                            <label
+                                style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Hazard
+                                Event Type</label>
+                            <select id="capEvent"
+                                style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff;">
                                 <option value="Flash Flood Warning">Flash Flood Warning</option>
                                 <option value="Severe Thunderstorm">Severe Thunderstorm Alert</option>
                                 <option value="Extreme Heatwave">Extreme Heatwave Advisory</option>
@@ -166,24 +196,31 @@
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                         <div>
-                            <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Severity Level</label>
-                            <select id="capSeverity" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #f87171; font-weight: 600;">
+                            <label
+                                style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Severity
+                                Level</label>
+                            <select id="capSeverity"
+                                style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #f87171; font-weight: 600;">
                                 <option value="EXTREME">🔴 EXTREME</option>
                                 <option value="SEVERE">🟠 SEVERE</option>
                                 <option value="MODERATE">🟡 MODERATE</option>
                             </select>
                         </div>
                         <div>
-                            <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Urgency</label>
-                            <select id="capUrgency" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff;">
+                            <label
+                                style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Urgency</label>
+                            <select id="capUrgency"
+                                style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff;">
                                 <option value="Immediate">Immediate Action</option>
                                 <option value="Expected">Expected within 1-6 hrs</option>
                                 <option value="Future">Future Threat</option>
                             </select>
                         </div>
                         <div>
-                            <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Certainty</label>
-                            <select id="capCertainty" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff;">
+                            <label
+                                style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Certainty</label>
+                            <select id="capCertainty"
+                                style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff;">
                                 <option value="Observed">Observed (High)</option>
                                 <option value="Likely">Likely (>50%)</option>
                             </select>
@@ -191,40 +228,56 @@
                     </div>
 
                     <!-- Dispatch Channels Checkboxes -->
-                    <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
-                        <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 600;">Broadcast Delivery Channels</label>
+                    <div
+                        style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                        <label
+                            style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 600;">Broadcast
+                            Delivery Channels</label>
                         <div style="display: flex; gap: 1.5rem;">
-                            <label style="color: #38bdf8; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
-                                <input type="checkbox" id="capChanSms" checked style="accent-color: #0284c7;"> 📱 SMS Gateway (Twilio Mock)
+                            <label
+                                style="color: #38bdf8; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                                <input type="checkbox" id="capChanSms" checked style="accent-color: #0284c7;"> 📱 SMS
+                                Gateway (Twilio Mock)
                             </label>
-                            <label style="color: #a7f3d0; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
-                                <input type="checkbox" id="capChanEmail" checked style="accent-color: #10b981;"> 📧 Email Bulletin (SMTP/SendGrid Mock)
+                            <label
+                                style="color: #a7f3d0; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                                <input type="checkbox" id="capChanEmail" checked style="accent-color: #10b981;"> 📧
+                                Email Bulletin (SMTP/SendGrid Mock)
                             </label>
                         </div>
                     </div>
 
                     <div style="margin-bottom: 1rem;">
-                        <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Alert Headline</label>
-                        <input type="text" id="capHeadline" required value="CRITICAL: Severe Flash Flood Warning - Evacuate Low-Lying Riverbanks"
-                               style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff; font-size: 0.9rem;">
+                        <label
+                            style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Alert
+                            Headline</label>
+                        <input type="text" id="capHeadline" required
+                            value="CRITICAL: Severe Flash Flood Warning - Evacuate Low-Lying Riverbanks"
+                            style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff; font-size: 0.9rem;">
                     </div>
 
                     <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Detailed Emergency Description & Guidance</label>
-                        <textarea id="capDescription" rows="3" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff; font-size: 0.875rem;">Heavy water release from reservoirs coupled with cloudburst. Evacuate low-lying riverbanks immediately. Move to designated emergency shelters on higher ground.</textarea>
+                        <label
+                            style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">Detailed
+                            Emergency Description & Guidance</label>
+                        <textarea id="capDescription" rows="3" required
+                            style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0f172a; color: #fff; font-size: 0.875rem;">Heavy water release from reservoirs coupled with cloudburst. Evacuate low-lying riverbanks immediately. Move to designated emergency shelters on higher ground.</textarea>
                     </div>
 
                     <!-- Dispatch Action Button -->
                     <div style="display: flex; justify-content: flex-end; gap: 1rem; align-items: center;">
-                        <button type="button" onclick="closeCapModal()" style="padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #cbd5e1; cursor: pointer;">Cancel</button>
-                        <button type="submit" id="btnDispatchCap" style="padding: 0.6rem 1.5rem; border-radius: 8px; border: none; background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        <button type="button" onclick="closeCapModal()"
+                            style="padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #cbd5e1; cursor: pointer;">Cancel</button>
+                        <button type="submit" id="btnDispatchCap"
+                            style="padding: 0.6rem 1.5rem; border-radius: 8px; border: none; background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
                             🚀 Broadcast Alert Now
                         </button>
                     </div>
                 </form>
 
                 <!-- Receipt Output Container -->
-                <div id="capReceiptContainer" style="display: none; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                <div id="capReceiptContainer"
+                    style="display: none; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
                 </div>
             </div>
         </div>
@@ -265,7 +318,7 @@
                         });
 
                         if (error) throw error;
-                        
+
                         localStorage.setItem("admin_jwt", data.session.access_token);
                         showAdminPanel();
                         return;
@@ -315,7 +368,7 @@
                     target.style.borderColor = "var(--primary-teal)";
 
                     currentAdminFilter = target.dataset.status;
-                    
+
                     const titleMap = {
                         "pending": "Pending Verification Queue",
                         "verified": "Verified Incident Reports",
@@ -347,7 +400,7 @@
 
             try {
                 const reports = await fetchAdminReports(statusFilter);
-                
+
                 if (!reports || reports.length === 0) {
                     tbody.innerHTML = `
                         <tr>
@@ -364,7 +417,7 @@
                     const score = Math.round(r.trust_score || 50);
                     const dateStr = r.posted_at ? new Date(r.posted_at).toLocaleString() : 'N/A';
                     const mediaLink = r.photo_url ? `<br/><a href="${r.photo_url}" target="_blank" style="color:#38bdf8; font-size:0.75rem;">View Media</a>` : '';
-                    
+
                     const statusVal = (r.verification_status || 'pending').toLowerCase();
                     let statusBadgeClass = 'status-pending';
                     if (statusVal === 'verified') statusBadgeClass = 'status-verified';
@@ -441,7 +494,7 @@
             e.preventDefault();
             const btn = document.getElementById("btnDispatchCap");
             const receiptContainer = document.getElementById("capReceiptContainer");
-            
+
             const channels = [];
             if (document.getElementById("capChanSms")?.checked) channels.push("sms");
             if (document.getElementById("capChanEmail")?.checked) channels.push("email");
@@ -514,5 +567,5 @@
         }
     </script>
 </body>
-</html>
 
+</html>

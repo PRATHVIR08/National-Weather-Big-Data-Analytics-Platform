@@ -405,138 +405,6 @@
                     gap:1rem;
                     flex-wrap:wrap;
                 ">
-                <!-- =========================================================
-     CITY WEATHER SEARCH
-========================================================= -->
-
-                <div class="glass-card weather-search-card">
-
-                    <div class="weather-search-header">
-
-                        <div>
-                            <h2>🌤️ Weather Search</h2>
-
-                            <p>
-                                Search current weather conditions for any Indian city
-                            </p>
-                        </div>
-
-                    </div>
-
-                    <div class="weather-search">
-
-                        <input type="text" id="weatherCity" class="form-control"
-                            placeholder="Enter city name, e.g. Mumbai">
-
-                        <button id="btnWeatherSearch" class="btn-primary">
-                            Search
-                        </button>
-
-                    </div>
-
-                    <div id="weatherLoading" style="display:none;">
-                        Loading weather...
-                    </div>
-
-                    <div id="weatherError" style="display:none;">
-                    </div>
-
-                    <div id="weatherResult" style="display:none;">
-
-                        <h3 id="weatherLocation">
-                            --
-                        </h3>
-
-                        <p id="weatherObserved">
-                            --
-                        </p>
-
-                        <div class="weather-search-main">
-
-                            <div class="temperature">
-
-                                <span id="weatherTemperature">
-                                    --
-                                </span>
-
-                                °C
-
-                            </div>
-
-                            <div>
-
-                                <strong id="weatherCondition">
-                                    --
-                                </strong>
-
-                                <p>
-                                    Feels like
-                                    <span id="weatherFeelsLike">
-                                        --
-                                    </span>
-                                    °C
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                        <div class="weather-details">
-
-                            <div class="weather-detail">
-                                💧
-                                <div>
-                                    <small>Humidity</small>
-                                    <strong id="weatherHumidity">--%</strong>
-                                </div>
-                            </div>
-
-                            <div class="weather-detail">
-                                💨
-                                <div>
-                                    <small>Wind</small>
-                                    <strong id="weatherWind">-- km/h</strong>
-                                </div>
-                            </div>
-
-                            <div class="weather-detail">
-                                🌧️
-                                <div>
-                                    <small>Rain</small>
-                                    <strong id="weatherRain">-- mm</strong>
-                                </div>
-                            </div>
-
-                            <div class="weather-detail">
-                                ☁️
-                                <div>
-                                    <small>Cloud Cover</small>
-                                    <strong id="weatherCloud">--%</strong>
-                                </div>
-                            </div>
-
-                            <div class="weather-detail">
-                                🎈
-                                <div>
-                                    <small>Pressure</small>
-                                    <strong id="weatherPressure">-- hPa</strong>
-                                </div>
-                            </div>
-
-                            <div class="weather-detail">
-                                🌬️
-                                <div>
-                                    <small>Wind Gust</small>
-                                    <strong id="weatherGust">-- km/h</strong>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
 
                 <div>
 
@@ -566,6 +434,138 @@
                     Last updated: —
                 </div>
 
+
+            </div>
+
+
+            <!-- =========================================================
+                 CITY WEATHER SEARCH
+            ========================================================= -->
+
+            <div class="glass-card weather-search-card">
+
+                <div class="weather-search-header">
+
+                    <div>
+                        <h2>🌤️ Weather Search</h2>
+
+                        <p>
+                            Search current weather conditions for any Indian city
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="weather-search">
+
+                    <input type="text" id="weatherCity" class="form-control" placeholder="Enter city name, e.g. Mumbai">
+
+                    <button id="btnWeatherSearch" class="btn-primary">
+                        Search
+                    </button>
+
+                </div>
+
+                <div id="weatherLoading" style="display:none;">
+                    Loading weather...
+                </div>
+
+                <div id="weatherError" style="display:none;">
+                </div>
+
+                <div id="weatherResult" style="display:none;">
+
+                    <h3 id="weatherLocation">
+                        --
+                    </h3>
+
+                    <p id="weatherObserved">
+                        --
+                    </p>
+
+                    <div class="weather-search-main">
+
+                        <div class="temperature">
+
+                            <span id="weatherTemperature">
+                                --
+                            </span>
+
+                            °C
+
+                        </div>
+
+                        <div>
+
+                            <strong id="weatherCondition">
+                                --
+                            </strong>
+
+                            <p>
+                                Feels like
+                                <span id="weatherFeelsLike">
+                                    --
+                                </span>
+                                °C
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="weather-details">
+
+                        <div class="weather-detail">
+                            💧
+                            <div>
+                                <small>Humidity</small>
+                                <strong id="weatherHumidity">--%</strong>
+                            </div>
+                        </div>
+
+                        <div class="weather-detail">
+                            💨
+                            <div>
+                                <small>Wind</small>
+                                <strong id="weatherWind">-- km/h</strong>
+                            </div>
+                        </div>
+
+                        <div class="weather-detail">
+                            🌧️
+                            <div>
+                                <small>Rain</small>
+                                <strong id="weatherRain">-- mm</strong>
+                            </div>
+                        </div>
+
+                        <div class="weather-detail">
+                            ☁️
+                            <div>
+                                <small>Cloud Cover</small>
+                                <strong id="weatherCloud">--%</strong>
+                            </div>
+                        </div>
+
+                        <div class="weather-detail">
+                            🎈
+                            <div>
+                                <small>Pressure</small>
+                                <strong id="weatherPressure">-- hPa</strong>
+                            </div>
+                        </div>
+
+                        <div class="weather-detail">
+                            🌬️
+                            <div>
+                                <small>Wind Gust</small>
+                                <strong id="weatherGust">-- km/h</strong>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
