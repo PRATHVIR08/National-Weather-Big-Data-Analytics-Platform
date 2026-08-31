@@ -407,3 +407,36 @@ Example:
 
 Weather data is provided by Open-Meteo. No API key is required.
 
+---
+
+## 🌐 Physical-Social Coherence Engine
+
+The **Physical-Social Coherence Engine** verifies citizen weather reports in real time by cross-referencing them against official weather observations from Open-Meteo. This prevents false reports, identifies hyper-local weather events, and calculates reliable validation scores.
+
+### 1. Verification Rule Pipeline
+The engine analyzes meteorological conditions for specific hazard events:
+* **Flood / Rain:** Checks precipitation & rain accumulation thresholds (partial coherence $\ge 2\text{ mm}$, strong coherence $\ge 10\text{ mm}$).
+* **Thunderstorm:** Validates wind gusts (partial $\ge 25\text{ km/h}$, strong $\ge 40\text{ km/h}$ combined with precipitation).
+* **Heatwave:** Checks atmospheric temperature (partial $\ge 35^\circ\text{C}$, strong $\ge 40^\circ\text{C}$).
+* **Fog / Visibility:** Assesses relative humidity (partial $\ge 80\%$, strong $\ge 90\%$).
+* **Dust Storm / Sandstorm:** Validates wind speed thresholds (partial $\ge 20\text{ km/h}$, strong $\ge 35\text{ km/h}$).
+* **Strong Winds:** Checks wind speed and gusts (partial speed $\ge 30\text{ km/h}$, strong speed $\ge 50\text{ km/h}$ or gusts $\ge 60\text{ km/h}$).
+
+### 2. Dynamic Trust Score & Verification Boosting
+* **Coherence Classification:** Outputs `STRONG_COHERENCE` (boosts trust score by $+20$), `PARTIAL_COHERENCE` (boosts trust score by $+10$), or `LOW_COHERENCE` (no boost).
+* **Automatic Status Promotion:**
+  - Reports with `STRONG_COHERENCE` and a total trust score $\ge 70$ are promoted to `verified` automatically.
+  - Reports with `LOW_COHERENCE` and a total trust score $< 50$ are flagged as `pending` for manual admin review.
+
+### 3. Architecture & API Layer
+* **API Endpoint:** `GET /coherence/check` accepts `event_type`, `latitude`, `longitude`, and `city` query parameters and returns detailed metrics.
+* **Schema Extension:** The `ReportResponse` schema includes an optional `coherence` object, enabling immediate client-side visualization on successful creation.
+
+### 4. Interactive Frontend Visualization (`report.html`)
+Upon submitting a weather report:
+1. The backend triggers the ML classification and performs the real-time coherence calculation.
+2. The submission success page expands a glassmorphic **Physical-Social Coherence** panel.
+3. Shows the real-time weather metrics (Temperature, Humidity, Rain), the validation status, and the textual justification explaining the engine's decision.
+4. Extends the dashboard redirect timer to $8\text{ seconds}$ to allow users to review their validation details.
+
+
