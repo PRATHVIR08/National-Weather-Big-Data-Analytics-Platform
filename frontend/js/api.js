@@ -439,6 +439,38 @@ async function fetchAgriAdvisory(city = "Bengaluru") {
 
 
 // ============================================================
+// CAP EMERGENCY DISPATCH API (SMS & EMAIL)
+// ============================================================
+
+async function dispatchCapAlert(alertData) {
+    const headers = {
+        "Content-Type": "application/json"
+    };
+
+    const adminToken = localStorage.getItem("admin_jwt");
+    if (adminToken) {
+        headers["Authorization"] = `Bearer ${adminToken}`;
+    }
+
+    const response = await fetch(
+        `${API_BASE}/admin/dispatch-alert`,
+        {
+            method: "POST",
+            headers,
+            body: JSON.stringify(alertData)
+        }
+    );
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.detail || "Failed to execute emergency broadcast");
+    }
+
+    return await response.json();
+}
+
+
+// ============================================================
 // SPATIAL LOCATION QUERIES (Plain Lat/Lng Spatial Indexing)
 // ============================================================
 
@@ -461,3 +493,35 @@ async function fetchReportsInBounds(minLat, maxLat, minLng, maxLng, additionalFi
     });
 }
 
+
+// ============================================================
+// PHYSICAL-SOCIAL COHERENCE API
+// ============================================================
+
+async function checkCoherence(reportData) {
+
+    const params = new URLSearchParams({
+        event_type: reportData.event_type,
+        latitude: reportData.latitude,
+        longitude: reportData.longitude,
+        city: reportData.city
+    });
+
+    const response = await fetch(
+        `${API_BASE}/coherence/check?${params.toString()}`,
+        {
+            method: "GET"
+        }
+    );
+
+    if (!response.ok) {
+
+        const errorText = await response.text();
+
+        throw new Error(
+            `Coherence check failed: ${errorText}`
+        );
+    }
+
+    return await response.json();
+}

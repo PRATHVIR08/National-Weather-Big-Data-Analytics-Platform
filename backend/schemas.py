@@ -30,6 +30,7 @@ class ReportResponse(BaseModel):
     is_duplicate: bool
     distance_km: Optional[float] = None
     created_at: Optional[str] = None
+    coherence: Optional[dict] = None
 
 class AdminActionResponse(BaseModel):
     success: bool
