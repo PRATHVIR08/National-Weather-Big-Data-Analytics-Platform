@@ -85,6 +85,13 @@ function initWeatherMap(containerId = "map") {
     createWeatherLoadingIndicator();
 
 
+    // ========================================================
+    // INITIALIZE PAN-INDIA DOPPLER RADAR MOSAIC LAYER
+    // ========================================================
+
+    initDopplerRadarMosaicControl(weatherMap);
+
+
     return weatherMap;
 }
 
@@ -1043,3 +1050,215 @@ function escapeHtml(str) {
         }
     );
 }
+
+
+// ============================================================
+// PAN-INDIA DOPPLER RADAR MOSAIC STITCHING MODULE
+// ============================================================
+
+let radarMosaicLayerGroup = null;
+let radarStationRingsGroup = null;
+let radarImageOverlay = null;
+let radarMosaicOpacity = 0.65;
+let isRadarMosaicVisible = false;
+let isStationRingsVisible = true;
+
+const DEFAULT_DWR_STATIONS = [
+    { id: "DEL", name: "DWR New Delhi", lat: 28.6139, lon: 77.2090, status: "ACTIVE", type: "S-Band", range_km: 500, max_dbz: 54 },
+    { id: "BOM", name: "DWR Mumbai", lat: 19.0760, lon: 72.8777, status: "ACTIVE", type: "C-Band", range_km: 500, max_dbz: 48 },
+    { id: "CCU", name: "DWR Kolkata", lat: 22.5726, lon: 88.3639, status: "ACTIVE", type: "S-Band", range_km: 500, max_dbz: 58 },
+    { id: "MAA", name: "DWR Chennai", lat: 13.0827, lon: 80.2707, status: "ACTIVE", type: "S-Band", range_km: 500, max_dbz: 42 },
+    { id: "BLR", name: "DWR Bengaluru", lat: 12.9716, lon: 77.5946, status: "ACTIVE", type: "C-Band", range_km: 500, max_dbz: 38 },
+    { id: "HYD", name: "DWR Hyderabad", lat: 17.3850, lon: 78.4867, status: "ACTIVE", type: "C-Band", range_km: 500, max_dbz: 45 },
+    { id: "GAU", name: "DWR Guwahati", lat: 26.1445, lon: 91.7362, status: "ACTIVE", type: "C-Band", range_km: 500, max_dbz: 52 },
+    { id: "NAG", name: "DWR Nagpur", lat: 21.1458, lon: 79.0882, status: "ACTIVE", type: "S-Band", range_km: 500, max_dbz: 40 }
+];
+
+function generateDopplerMosaicTexture() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1000;
+    canvas.height = 1000;
+    const ctx = canvas.getContext("2d");
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Weather radar reflectivity blobs (monsoon cells & storm fronts across India)
+    const radarCells = [
+        { x: 350, y: 280, r: 140, dbz: 54 }, // North India / Delhi-UP storm front
+        { x: 220, y: 550, r: 120, dbz: 50 }, // Konkan & Western Ghats intense precipitation
+        { x: 700, y: 440, r: 160, dbz: 58 }, // Bay of Bengal severe convective cell
+        { x: 420, y: 720, r: 110, dbz: 42 }, // Tamil Nadu / Chennai coastal showers
+        { x: 820, y: 300, r: 130, dbz: 52 }, // Northeast India / Assam heavy rainfall
+        { x: 400, y: 560, r: 90,  dbz: 46 }  // Central India / Telangana convective core
+    ];
+
+    radarCells.forEach(cell => {
+        const grad = ctx.createRadialGradient(cell.x, cell.y, 4, cell.x, cell.y, cell.r);
+        grad.addColorStop(0, "rgba(213, 0, 249, 0.88)");   // >55 dBZ Magenta (Extreme / Hail)
+        grad.addColorStop(0.2, "rgba(255, 87, 34, 0.80)");  // 45-55 dBZ Red (Severe Storm)
+        grad.addColorStop(0.48, "rgba(255, 235, 59, 0.68)"); // 35-45 dBZ Yellow (Heavy Rain)
+        grad.addColorStop(0.72, "rgba(0, 230, 118, 0.52)");  // 25-35 dBZ Green (Moderate Rain)
+        grad.addColorStop(0.92, "rgba(0, 229, 255, 0.35)");  // 15-25 dBZ Cyan (Light Rain)
+        grad.addColorStop(1, "rgba(0, 229, 255, 0)");
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cell.x, cell.y, cell.r, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    return canvas.toDataURL("image/png");
+}
+
+function initDopplerRadarMosaicControl(map) {
+    if (!map) return;
+
+    radarMosaicLayerGroup = L.layerGroup().addTo(map);
+    radarStationRingsGroup = L.layerGroup();
+
+    // Bounds covering India spatial region
+    const indiaBounds = [
+        [6.5, 68.0],  // South-West corner
+        [35.5, 97.0]  // North-East corner
+    ];
+
+    const compositeTextureUrl = generateDopplerMosaicTexture();
+    radarImageOverlay = L.imageOverlay(compositeTextureUrl, indiaBounds, {
+        opacity: radarMosaicOpacity,
+        interactive: false,
+        zIndex: 400
+    });
+
+    // Populate Station Markers & 500km Range Rings
+    DEFAULT_DWR_STATIONS.forEach(st => {
+        // Station Pulse Icon
+        const pulseIcon = L.divIcon({
+            className: 'dwr-pulse-wrapper',
+            html: `<div class="dwr-pulse-marker" title="${st.name} (${st.type})">📡</div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
+        });
+
+        const marker = L.marker([st.lat, st.lon], { icon: pulseIcon });
+        marker.bindPopup(`
+            <div style="font-family:'Inter',sans-serif; padding:4px;">
+                <h4 style="margin:0 0 4px 0; color:#38bdf8;">${st.name}</h4>
+                <div style="font-size:0.8rem; color:#9ca3af;">
+                    <div><strong>Status:</strong> <span style="color:#10b981;">● ${st.status}</span></div>
+                    <div><strong>Radar Frequency:</strong> ${st.type}</div>
+                    <div><strong>Coverage Beam Radius:</strong> ${st.range_km} km</div>
+                    <div><strong>Peak Reflectivity:</strong> <strong style="color:#ff5722;">${st.max_dbz} dBZ</strong></div>
+                </div>
+            </div>
+        `);
+        radarStationRingsGroup.addLayer(marker);
+
+        // Range Circle
+        const ring = L.circle([st.lat, st.lon], {
+            radius: st.range_km * 1000,
+            color: "#0284c7",
+            weight: 1,
+            dashArray: "4, 6",
+            fillColor: "#0284c7",
+            fillOpacity: 0.04,
+            interactive: false
+        });
+        radarStationRingsGroup.addLayer(ring);
+    });
+
+    // Add Leaflet UI Control Box for Radar Mosaic
+    const RadarControl = L.Control.extend({
+        options: { position: 'topright' },
+        onAdd: function () {
+            const container = L.DomUtil.create('div', 'radar-mosaic-control leaflet-bar');
+            L.DomEvent.disableClickPropagation(container);
+            L.DomEvent.disableScrollPropagation(container);
+
+            container.innerHTML = `
+                <div class="radar-control-header">
+                    <span class="radar-control-title">
+                        📡 Pan-India Doppler Mosaic
+                    </span>
+                    <span style="font-size:0.65rem; background:rgba(56,189,248,0.2); color:#38bdf8; padding:2px 6px; border-radius:4px; font-weight:600;">LIVE MOCK</span>
+                </div>
+                <div class="radar-control-body">
+                    <label class="radar-toggle-row">
+                        <span>Show Radar Layer</span>
+                        <input type="checkbox" id="chkToggleRadarMosaic">
+                    </label>
+                    <label class="radar-toggle-row">
+                        <span>500km DWR Station Rings</span>
+                        <input type="checkbox" id="chkToggleStationRings" checked>
+                    </label>
+                    <div class="radar-slider-row">
+                        <div style="display:flex; justify-content:space-between;">
+                            <span>Layer Opacity</span>
+                            <span id="radarOpacityVal">65%</span>
+                        </div>
+                        <input type="range" id="rngRadarOpacity" min="0.1" max="1.0" step="0.05" value="0.65">
+                    </div>
+                    <div class="radar-dbz-legend">
+                        <div style="font-size:0.72rem; color:#9ca3af; font-weight:600;">Reflectivity Scale (dBZ)</div>
+                        <div class="radar-legend-bar"></div>
+                        <div class="radar-legend-labels">
+                            <span>15 dBZ</span>
+                            <span>30</span>
+                            <span>45</span>
+                            <span>60+ dBZ</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add Event Listeners
+            setTimeout(() => {
+                const chkRadar = document.getElementById("chkToggleRadarMosaic");
+                const chkRings = document.getElementById("chkToggleStationRings");
+                const rngOpacity = document.getElementById("rngRadarOpacity");
+                const lblOpacity = document.getElementById("radarOpacityVal");
+
+                if (chkRadar) {
+                    chkRadar.addEventListener("change", (e) => {
+                        isRadarMosaicVisible = e.target.checked;
+                        if (isRadarMosaicVisible) {
+                            radarMosaicLayerGroup.addLayer(radarImageOverlay);
+                            if (isStationRingsVisible) {
+                                radarMosaicLayerGroup.addLayer(radarStationRingsGroup);
+                            }
+                        } else {
+                            radarMosaicLayerGroup.clearLayers();
+                        }
+                    });
+                }
+
+                if (chkRings) {
+                    chkRings.addEventListener("change", (e) => {
+                        isStationRingsVisible = e.target.checked;
+                        if (isRadarMosaicVisible) {
+                            if (isStationRingsVisible) {
+                                radarMosaicLayerGroup.addLayer(radarStationRingsGroup);
+                            } else {
+                                radarMosaicLayerGroup.removeLayer(radarStationRingsGroup);
+                            }
+                        }
+                    });
+                }
+
+                if (rngOpacity) {
+                    rngOpacity.addEventListener("input", (e) => {
+                        const val = parseFloat(e.target.value);
+                        radarMosaicOpacity = val;
+                        if (lblOpacity) lblOpacity.innerText = `${Math.round(val * 100)}%`;
+                        if (radarImageOverlay) {
+                            radarImageOverlay.setOpacity(val);
+                        }
+                    });
+                }
+            }, 100);
+
+            return container;
+        }
+    });
+
+    map.addControl(new RadarControl());
+}
