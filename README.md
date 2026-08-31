@@ -34,7 +34,7 @@ A full-stack web application designed to collect, verify, categorize, and visual
 - **File Storage:** Supabase Storage (`weather-media` public bucket).
 - **Auth:** Supabase Auth (Email/Password login for Admin Panel).
 - **Live Updates:** Supabase Realtime (Websocket subscription on `postgres_changes` for `reports` table).
-- **Maps & GIS:** Leaflet.js + OpenStreetMap / CartoDB Dark Tiles.
+- **Maps & GIS:** Leaflet.js + OpenStreetMap / CartoDB Dark Tiles + Pan-India Doppler Weather Radar (DWR) Mosaic Engine.
 - **Charts & Visualizations:** Chart.js.
 - **Machine Learning & NLP Pipelines:**
   - **Scikit-Learn NLP Classifier:** `TfidfVectorizer` (N-grams 1-2) + `LogisticRegression` pipeline trained on 1,400+ labeled weather report text samples (`Flood`, `Heatwave`, `Thunderstorm`, `Fog`, `DustStorm`, `StrongWind`, `Other`) with confidence probability output.
@@ -438,5 +438,42 @@ Upon submitting a weather report:
 2. The submission success page expands a glassmorphic **Physical-Social Coherence** panel.
 3. Shows the real-time weather metrics (Temperature, Humidity, Rain), the validation status, and the textual justification explaining the engine's decision.
 4. Extends the dashboard redirect timer to $8\text{ seconds}$ to allow users to review their validation details.
+
+---
+
+## 📡 Pan-India Doppler Weather Radar (DWR) Mosaic Stitching
+
+The **Pan-India Doppler Mosaic Engine** aggregates and stitches localized polar reflectivity scans ($Z$ in $\text{dBZ}$) from Doppler Weather Radar (DWR) stations across India into a single continuous, real-time map layer over India's spatial bounds ($6.5^\circ\text{N} - 35.5^\circ\text{N}$, $68.0^\circ\text{E} - 97.0^\circ\text{E}$).
+
+### 1. Features & Capabilities
+* **Composite Reflectivity Raster Layer**: Combines multi-radar reflectivity scans into a high-resolution map overlay using standard meteorological reflectivity color ramps ($\text{dBZ}$ scale from 15 to 65+).
+* **Active DWR Station Network**: Interactive station markers and 500 km radius beam coverage rings across major Indian meteorology hubs:
+  - **New Delhi (DEL)** — S-Band DWR (500 km range, 54 dBZ peak)
+  - **Mumbai (BOM)** — C-Band DWR (500 km range, 48 dBZ peak)
+  - **Kolkata (CCU)** — S-Band DWR (500 km range, 58 dBZ peak)
+  - **Chennai (MAA)** — S-Band DWR (500 km range, 42 dBZ peak)
+  - **Bengaluru (BLR)** — C-Band DWR (500 km range, 38 dBZ peak)
+  - **Hyderabad (HYD)** — C-Band DWR (500 km range, 45 dBZ peak)
+  - **Guwahati (GAU)** — C-Band DWR (500 km range, 52 dBZ peak)
+  - **Nagpur (NAG)** — S-Band DWR (500 km range, 40 dBZ peak)
+* **Interactive Map Controls**:
+  - **Layer Toggle Switch**: Instantly show/hide the Pan-India Doppler Mosaic on the live dashboard.
+  - **Station Range Rings Toggle**: Toggle 500 km DWR coverage beam rings.
+  - **Dynamic Layer Opacity Slider**: Adjust layer transparency from 10% to 100% for underlying map visibility.
+  - **Reflectivity Legend Bar**: Real-time reflectivity scale mapping $\text{dBZ}$ intensity (Cyan: Light Rain $\rightarrow$ Green: Moderate Rain $\rightarrow$ Yellow: Heavy Rain $\rightarrow$ Red: Severe Storm $\rightarrow$ Magenta: Extreme / Hailstorm).
+
+### 2. Reflectivity Color Scale ($\text{dBZ}$)
+| Reflectivity ($\text{dBZ}$) | Color Code | Precipitation Category |
+| :--- | :--- | :--- |
+| **15 – 25 dBZ** | `#00e5ff` (Cyan) | Light Rain / Drizzle |
+| **25 – 35 dBZ** | `#00e676` (Green) | Moderate Rain |
+| **35 – 45 dBZ** | `#ffeb3b` (Yellow) | Heavy Rain |
+| **45 – 55 dBZ** | `#ff5722` (Red) | Severe Storm / Thunderstorm |
+| **55+ dBZ** | `#d500f9` (Magenta) | Extreme Convection / Hailstorm |
+
+### 3. API Endpoint & Integration
+* **API Endpoint**: `GET /weather/radar-mosaic`
+* **Response**: Returns composite mosaic spatial bounds, legend standard definitions, and active Doppler station network status metrics.
+
 
 

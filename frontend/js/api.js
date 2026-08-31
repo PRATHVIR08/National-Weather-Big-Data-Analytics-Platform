@@ -607,3 +607,25 @@ async function checkCoherence(reportData) {
 
     return await response.json();
 }
+
+
+// ============================================================
+// PAN-INDIA DOPPLER RADAR MOSAIC METADATA API
+// ============================================================
+
+async function fetchRadarMosaicMetadata() {
+    try {
+        const response = await fetch(`${API_BASE}/weather/radar-mosaic`, {
+            method: "GET",
+            cache: "no-store"
+        });
+        if (!response.ok) {
+            throw new Error(`Radar mosaic metadata fetch error: ${response.status}`);
+        }
+        return await response.json();
+    } catch (e) {
+        console.warn("Could not load radar mosaic metadata from backend, using default fallback.", e);
+        return null;
+    }
+}
+
