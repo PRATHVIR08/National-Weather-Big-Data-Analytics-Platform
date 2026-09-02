@@ -1,9 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
+import { useConnection } from '../../context/ConnectionContext';
 
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
+  const { connectionStatus, checkBackendHealth } = useConnection();
 
   return (
     <header className="navbar">
@@ -30,6 +32,39 @@ export default function Navbar() {
             </NavLink>
           </li>
         </ul>
+
+        {/* Connection Status Indicator */}
+        <div
+          className={`connection-pill status-${connectionStatus}`}
+          onClick={checkBackendHealth}
+          title={
+            connectionStatus === 'live'
+              ? 'Connected to Backend (Click to refresh status)'
+              : connectionStatus === 'connecting'
+              ? 'Checking backend connection...'
+              : 'Backend disconnected (Showing Offline Cache. Click to retry connection)'
+          }
+          style={{ cursor: 'pointer' }}
+        >
+          {connectionStatus === 'live' && (
+            <>
+              <span className="live-dot-green"></span>
+              <span>Live</span>
+            </>
+          )}
+          {connectionStatus === 'connecting' && (
+            <>
+              <span className="connecting-spinner-sm"></span>
+              <span>Connecting...</span>
+            </>
+          )}
+          {connectionStatus === 'offline' && (
+            <>
+              <span className="offline-dot-orange"></span>
+              <span>Offline</span>
+            </>
+          )}
+        </div>
 
         <button
           className="theme-toggle-btn"

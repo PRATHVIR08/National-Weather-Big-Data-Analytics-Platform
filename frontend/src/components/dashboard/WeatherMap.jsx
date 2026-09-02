@@ -5,6 +5,7 @@ import LiveWeatherMarker from './LiveWeatherMarker';
 import WeatherLegend from './WeatherLegend';
 import LoadingIndicator from '../common/LoadingIndicator';
 import GlassCard from '../common/GlassCard';
+import { useConnection } from '../../context/ConnectionContext';
 
 function MapController({ selectedLocation, reports }) {
   const map = useMap();
@@ -35,6 +36,7 @@ export default function WeatherMap({
   selectedLocation = null,
 }) {
   const [mapMode, setMapMode] = useState('all'); // 'all', 'live', 'incidents'
+  const { connectionStatus } = useConnection();
 
   return (
     <GlassCard className="map-card">
@@ -102,10 +104,25 @@ export default function WeatherMap({
             </button>
           </div>
 
-          <div className="map-live-status">
-            <div className="live-dot"></div>
-            <span>LIVE FEED</span>
-          </div>
+          {/* Dynamic Live / Connecting / Offline Status Symbol */}
+          {connectionStatus === 'live' && (
+            <div className="map-live-status status-live">
+              <div className="live-dot-green"></div>
+              <span>LIVE FEED</span>
+            </div>
+          )}
+          {connectionStatus === 'connecting' && (
+            <div className="map-live-status status-connecting">
+              <div className="connecting-spinner-sm"></div>
+              <span>CONNECTING...</span>
+            </div>
+          )}
+          {connectionStatus === 'offline' && (
+            <div className="map-live-status status-offline">
+              <div className="offline-dot-orange"></div>
+              <span>OFFLINE</span>
+            </div>
+          )}
         </div>
       </div>
 
