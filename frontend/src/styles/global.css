@@ -605,3 +605,149 @@ h1, h2, h3, h4, h5, .brand-text {
   .weather-summary-row, .metrics-row { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   CONNECTION STATUS INDICATOR & OFFLINE BANNER
+   ========================================================================== */
+
+.connection-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.connection-pill.status-live {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.connection-pill.status-connecting {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.connection-pill.status-offline {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+}
+
+.live-dot-green {
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+  animation: livePulse 1.5s infinite;
+}
+
+.offline-dot-orange {
+  width: 8px;
+  height: 8px;
+  background: #f97316;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.8);
+  animation: offlinePulse 2s infinite;
+}
+
+@keyframes offlinePulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.connecting-spinner-sm {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #f59e0b;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.live-indicator.status-live {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.live-indicator.status-connecting {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.live-indicator.status-offline {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+/* OFFLINE NOTICE BANNER */
+.offline-notice-banner {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.15), rgba(180, 83, 9, 0.25));
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  border-radius: 12px;
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.offline-notice-content {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.offline-notice-content .offline-icon {
+  font-size: 1.5rem;
+}
+
+.offline-notice-content strong {
+  color: #fdba74;
+  font-size: 0.95rem;
+  display: block;
+}
+
+.offline-notice-content p {
+  color: #fed7aa;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.btn-offline-retry {
+  background: rgba(249, 115, 22, 0.2);
+  color: #fff;
+  border: 1px solid #f97316;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.btn-offline-retry:hover {
+  background: #f97316;
+  color: #fff;
+}
+

@@ -8,6 +8,7 @@ import WeatherMap from '../components/dashboard/WeatherMap';
 import IncidentCharts from '../components/dashboard/IncidentCharts';
 import AgriAdvisory from '../components/dashboard/AgriAdvisory';
 import { fetchReports, fetchLiveWeather } from '../services/api';
+import { useConnection } from '../context/ConnectionContext';
 
 export default function Dashboard() {
   const [reports, setReports] = useState([]);
@@ -18,30 +19,42 @@ export default function Dashboard() {
   const [activeFilters, setActiveFilters] = useState({});
   const [selectedLocation, setSelectedLocation] = useState(null);
 
+  const { isOffline, setConnectionStatus, checkBackendHealth } = useConnection();
+
   const loadReportsData = useCallback(async (filters = {}) => {
     setIsLoadingMap(true);
     try {
-      const data = await fetchReports(filters);
-      setReports(data || []);
+      const res = await fetchReports(filters);
+      setReports(res.data || []);
+      if (!res.isLive) {
+        setConnectionStatus('offline');
+      }
     } catch (err) {
       console.error('Failed to load reports:', err);
     } finally {
       setIsLoadingMap(false);
     }
-  }, []);
+  }, [setConnectionStatus]);
 
   const loadLiveWeatherData = useCallback(async () => {
     try {
-      const response = await fetchLiveWeather();
-      setLiveWeather(response.data || []);
+      const res = await fetchLiveWeather();
+      setLiveWeather(res.data || []);
       setLastUpdated(new Date().toLocaleTimeString());
+      if (res.isLive) {
+        setConnectionStatus('live');
+      } else {
+        setConnectionStatus('offline');
+      }
     } catch (err) {
       console.error('Failed to load live weather:', err);
+      setConnectionStatus('offline');
     }
-  }, []);
+  }, [setConnectionStatus]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
+    await checkBackendHealth();
     await Promise.all([loadReportsData(activeFilters), loadLiveWeatherData()]);
     setIsRefreshing(false);
   };
@@ -76,6 +89,22 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
+      {/* Offline Mode Alert Banner */}
+      {isOffline && (
+        <div className="offline-notice-banner">
+          <div className="offline-notice-content">
+            <span className="offline-icon">⚡</span>
+            <div>
+              <strong>Backend Disconnected / Not Running</strong>
+              <p>Operating in Offline Mode — Displaying cached weather telemetry & local hazard reports across India.</p>
+            </div>
+          </div>
+          <button className="btn-offline-retry" onClick={handleRefresh}>
+            🔄 Retry Connection
+          </button>
+        </div>
+      )}
+
       <LiveWeatherBar
         lastUpdated={lastUpdated}
         onRefresh={handleRefresh}
